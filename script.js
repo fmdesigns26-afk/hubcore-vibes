@@ -1,0 +1,3 @@
+const nav=document.querySelector('.nav'),menu=document.querySelector('.menu');menu?.addEventListener('click',()=>nav.classList.toggle('open'));document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+const upload=document.getElementById('profileUpload'),img=document.getElementById('profileImage');upload?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)img.src=URL.createObjectURL(f)});
