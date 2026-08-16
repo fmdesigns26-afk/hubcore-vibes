@@ -10,7 +10,7 @@ This is a single static website package containing the rebuilt HubCore Vibes sit
 5. Deploy.
 
 ## Add the founder photo later
-Open the Founder section and use **Add my photo** to preview a photo in your browser. To make the photo permanent for all visitors, replace `assets/founder/founder-placeholder-photo.png` with the desired image before redeploying.
+Open the Founder section and use **Add my photo** to preview a photo in your browser. To make the photo permanent for all visitors, replace `assets/founder/founder-photo-placeholder.svg` with the desired image before redeploying.
 
 ## Notes
 - Reality Switch is intentionally described as a separate game project.
