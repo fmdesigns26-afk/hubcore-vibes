@@ -6,6 +6,94 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 const upload=document.getElementById('profileUpload'),img=document.getElementById('profileImage');
 upload?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)img.src=URL.createObjectURL(f)});
 
+const platformSeed={
+  membersOnlineNow: 1842,
+  newMembersToday: 318,
+  postsToday: 962,
+  activeConversations: 126,
+  videosWatched: 8604,
+  communityGrowth: 27,
+  trends:[
+    {name:'Reality Switch', delta:'+18.4%'},
+    {name:'Creator collabs', delta:'+12.9%'},
+    {name:'Vibes Chat', delta:'+9.2%'},
+    {name:'HubBeats drops', delta:'+7.8%'}
+  ],
+  onlineUsers:[
+    {name:'Avery Voss', status:'in creative sync'},
+    {name:'Mila Kade', status:'reviewing concepts'},
+    {name:'Jalen North', status:'building worlds'},
+    {name:'Sera Ellis', status:'curating tracks'}
+  ],
+  notifications:[
+    {title:'New follower', detail:'Avery followed you'},
+    {title:'Creator collab', detail:'Mila shared a new concept'},
+    {title:'Reality Switch', detail:'93 new watchers in the last hour'}
+  ]
+};
+
+async function fetchPlatformData(){
+  try {
+    const response=await fetch('/api/platform', {cache:'no-store'});
+    if(!response.ok) throw new Error('API unavailable');
+    return await response.json();
+  } catch (error) {
+    return platformSeed;
+  }
+}
+
+function renderPlatformData(data){
+  const metricMap={
+    membersOnlineNow: data.membersOnlineNow,
+    newMembersToday: data.newMembersToday,
+    postsToday: data.postsToday,
+    activeConversations: data.activeConversations,
+    videosWatched: data.videosWatched,
+    communityGrowth: data.communityGrowth
+  };
+
+  Object.entries(metricMap).forEach(([key,value])=>{
+    const el=document.querySelector(`[data-metric="${key}"]`);
+    if(!el) return;
+    el.textContent = key === 'communityGrowth' ? `${value}%` : value.toLocaleString();
+  });
+
+  const onlineCount=document.getElementById('onlineCount');
+  if(onlineCount) onlineCount.textContent = String(data.membersOnlineNow || 0);
+
+  const notificationCount=document.getElementById('notificationCount');
+  if(notificationCount) notificationCount.textContent = String((data.notifications || []).length || 0);
+
+  const trendList=document.getElementById('trendList');
+  if(trendList){
+    trendList.innerHTML = (data.trends || []).map(item => `
+      <li><strong>${item.name}</strong><span>${item.delta}</span></li>
+    `).join('');
+  }
+
+  const onlineList=document.getElementById('onlineList');
+  if(onlineList){
+    onlineList.innerHTML = (data.onlineUsers || []).map(user => `
+      <li><div><strong>${user.name}</strong><span>${user.status}</span></div></li>
+    `).join('');
+  }
+
+  const notificationList=document.getElementById('notificationList');
+  if(notificationList){
+    notificationList.innerHTML = (data.notifications || []).map(item => `
+      <li><div><strong>${item.title}</strong><span>${item.detail}</span></div></li>
+    `).join('');
+  }
+}
+
+async function updatePlatformMetrics(){
+  const data=await fetchPlatformData();
+  renderPlatformData(data);
+}
+
+setInterval(updatePlatformMetrics, 8000);
+updatePlatformMetrics();
+
 const communityKey='hubcore-community-posts-v1';
 const defaultPosts=[
   {id:'seed-1',name:'Nia Vega',handle:'@neonnomad',avatar:'NV',timestamp:Date.now()-1000*60*40,text:'The HubCore universe feels bigger every day. I love seeing creators, communities and ideas collide in one place.',reactions:{like:42,hub:29,fire:17,inspire:33},userReaction:null,comments:[{id:'c-1',author:'Ari',text:'This is the energy the platform needs.',timestamp:Date.now()-1000*60*22,replyTo:null}]},
