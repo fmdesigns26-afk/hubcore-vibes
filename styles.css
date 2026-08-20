@@ -457,6 +457,60 @@ main {
   filter: drop-shadow(0 0 12px rgba(255,255,255,0.34)) drop-shadow(0 0 30px rgba(143, 77, 255, 0.76)) drop-shadow(0 0 62px rgba(80, 205, 255, 0.28));
 }
 
+.trailer-section {
+  margin-top: 42px;
+}
+
+.trailer-player {
+  position: relative;
+  min-height: clamp(260px, 48vw, 570px);
+  margin-top: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(166, 125, 255, 0.4);
+  background: #05040a;
+  box-shadow: 0 30px 90px rgba(5, 3, 14, 0.78), 0 0 40px rgba(112, 75, 255, 0.18);
+}
+
+.trailer-player video {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  object-fit: cover;
+  background: #05040a;
+}
+
+.trailer-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(4,3,8,0.8), transparent 48%, rgba(4,3,8,0.42)), linear-gradient(0deg, rgba(4,3,8,0.76), transparent 38%, rgba(4,3,8,0.34));
+}
+
+.trailer-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+  padding: clamp(24px, 7vw, 80px);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms ease, transform 500ms ease;
+  pointer-events: none;
+}
+
+.trailer-card.is-visible { opacity: 1; transform: translateY(0); }
+.trailer-kicker { color: #8fddff; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; }
+.trailer-card strong { color: #fff; font-family: "Space Grotesk", sans-serif; font-size: clamp(1.7rem, 5vw, 4.8rem); line-height: 1.04; text-shadow: 0 0 30px rgba(168, 116, 255, 0.5); }
+.trailer-card small { color: #8fddff; font-size: 0.36em; letter-spacing: 0.14em; }
+
+.trailer-progress { position: absolute; right: 24px; bottom: 22px; left: 24px; height: 2px; background: rgba(255,255,255,0.2); }
+.trailer-progress span { display: block; width: 0; height: 100%; background: #8fddff; box-shadow: 0 0 12px #8fddff; }
+.trailer-play { position: absolute; right: 24px; top: 24px; padding: 9px 13px; border: 1px solid rgba(143,221,255,0.55); background: rgba(4,3,8,0.55); color: #fff; cursor: pointer; font: inherit; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.trailer-play.is-playing { opacity: 0.65; }
+
 .floating {
   position: absolute;
   padding: 10px 14px;

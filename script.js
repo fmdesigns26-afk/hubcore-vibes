@@ -6,6 +6,50 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 const upload=document.getElementById('profileUpload'),img=document.getElementById('profileImage');
 upload?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)img.src=URL.createObjectURL(f)});
 
+const trailerVideo=document.getElementById('trailerVideo');
+const trailerCard=document.getElementById('trailerCard');
+const trailerProgress=document.getElementById('trailerProgress');
+const trailerPlay=document.getElementById('trailerPlay');
+const trailerScenes=[
+  {src:'assets/videos/reality-switch-title.mp4', kicker:'REALITY SWITCH', title:'ONE CHOICE.<br>INFINITE REALITIES.', hold:2},
+  {src:'assets/videos/reality-switch-trailer-01.mp4', kicker:'THE PATH IS YOURS', title:'EVERY DECISION<br>CHANGES YOUR PATH.', hold:1},
+  {src:'assets/videos/reality-switch-character.mp4', kicker:'THE WORLD RESPONDS', title:'EVERY PATH<br>CHANGES YOUR REALITY.', hold:1},
+  {src:'assets/videos/reality-switch-trailer-02.mp4', kicker:'WHAT HAPPENS NEXT', title:'YOUR CHOICES<br>CHANGE REALITY.', hold:1},
+  {src:'assets/videos/reality-switch-title.mp4', kicker:'A HUBCORE VIBES GAME EXPERIENCE', title:'IN DEVELOPMENT<br><small>TRAILER COMING SOON</small>', hold:3}
+];
+let trailerSceneIndex=0;
+let trailerCardTimer;
+
+function showTrailerCard(scene){
+  if(!trailerCard) return;
+  clearTimeout(trailerCardTimer);
+  trailerCard.classList.remove('is-visible');
+  trailerCardTimer=setTimeout(()=>{
+    trailerCard.innerHTML=`<span class="trailer-kicker">${scene.kicker}</span><strong>${scene.title}</strong>`;
+    trailerCard.classList.add('is-visible');
+  },180);
+}
+
+function loadTrailerScene(index, autoplay=false){
+  if(!trailerVideo) return;
+  trailerSceneIndex=index % trailerScenes.length;
+  const scene=trailerScenes[trailerSceneIndex];
+  trailerVideo.src=scene.src;
+  trailerVideo.load();
+  showTrailerCard(scene);
+  if(autoplay) trailerVideo.play().catch(()=>{});
+}
+
+trailerVideo?.addEventListener('ended',()=>loadTrailerScene(trailerSceneIndex+1,true));
+trailerVideo?.addEventListener('timeupdate',()=>{
+  if(trailerProgress && trailerVideo.duration) trailerProgress.style.width=`${(trailerVideo.currentTime/trailerVideo.duration)*100}%`;
+});
+trailerPlay?.addEventListener('click',()=>{
+  if(!trailerVideo) return;
+  trailerVideo.play().then(()=>{trailerPlay.textContent='Playing teaser'; trailerPlay.classList.add('is-playing')}).catch(()=>{});
+});
+loadTrailerScene(0);
+
 const platformSeed={
   metrics:{members:12840,creators:4860,posts:962,projects:214,events:38,games:64,messages:18420},
   membersOnlineNow: 1842,
