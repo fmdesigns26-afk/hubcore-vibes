@@ -3,6 +3,15 @@ export async function onRequest(context) {
 
   try {
     const metrics = {
+      metrics: {
+        members: 12840,
+        creators: 4860,
+        posts: 962,
+        projects: 214,
+        events: 38,
+        games: 64,
+        messages: 18420
+      },
       membersOnlineNow: 1842,
       newMembersToday: 318,
       postsToday: 962,
@@ -25,6 +34,11 @@ export async function onRequest(context) {
         { title: 'New follower', detail: 'Avery followed you' },
         { title: 'Creator collab', detail: 'Mila shared a new concept' },
         { title: 'Reality Switch', detail: '93 new watchers in the last hour' }
+      ],
+      activity: [
+        { label: 'Avery published a new project', time: '2m ago' },
+        { label: '12 creators joined a collab', time: '8m ago' },
+        { label: 'Night Shift Radio went live', time: '16m ago' }
       ]
     };
 
@@ -58,7 +72,9 @@ export async function onRequest(context) {
       communityGrowth: 0,
       trends: [],
       onlineUsers: [],
-      notifications: []
+      notifications: [],
+      metrics: { members: 0, creators: 0, posts: 0, projects: 0, events: 0, games: 0, messages: 0 },
+      activity: []
     }, {
       status: 200,
       headers: {

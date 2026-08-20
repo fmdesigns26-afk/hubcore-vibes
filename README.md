@@ -24,3 +24,5 @@ The **Add my photo** control only previews an image in the current browser; it d
 - Reality Switch is intentionally described as a separate game project.
 - All video files are local assets in `assets/videos/`.
 - The package does not require a database or KV namespace. The platform function returns its built-in metrics when those services are not configured.
+- `platform-api.js` is the browser-side integration boundary. Its placeholder methods can later be connected to Firebase, Supabase, Cloudflare D1/Workers, or WebSockets without changing the platform UI.
+- Community posts and reactions currently use local browser storage and remain available as an offline preview until a service is connected.

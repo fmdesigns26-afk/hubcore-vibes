@@ -7,6 +7,7 @@ const upload=document.getElementById('profileUpload'),img=document.getElementByI
 upload?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)img.src=URL.createObjectURL(f)});
 
 const platformSeed={
+  metrics:{members:12840,creators:4860,posts:962,projects:214,events:38,games:64,messages:18420},
   membersOnlineNow: 1842,
   newMembersToday: 318,
   postsToday: 962,
@@ -29,20 +30,28 @@ const platformSeed={
     {title:'New follower', detail:'Avery followed you'},
     {title:'Creator collab', detail:'Mila shared a new concept'},
     {title:'Reality Switch', detail:'93 new watchers in the last hour'}
+  ],
+  activity:[
+    {label:'Avery published a new project',time:'2m ago'},
+    {label:'12 creators joined a collab',time:'8m ago'},
+    {label:'Night Shift Radio went live',time:'16m ago'}
   ]
 };
 
 async function fetchPlatformData(){
   try {
-    const response=await fetch('/api/platform', {cache:'no-store'});
-    if(!response.ok) throw new Error('API unavailable');
-    return await response.json();
+    return await window.HubCoreAPI.getPlatformSnapshot();
   } catch (error) {
     return platformSeed;
   }
 }
 
 function renderPlatformData(data){
+  const metrics=data.metrics || platformSeed.metrics;
+  Object.entries(metrics).forEach(([key,value])=>{
+    const el=document.querySelector(`[data-metric="${key}"]`);
+    if(el) el.textContent=Number(value).toLocaleString();
+  });
   const metricMap={
     membersOnlineNow: data.membersOnlineNow,
     newMembersToday: data.newMembersToday,
@@ -63,6 +72,8 @@ function renderPlatformData(data){
 
   const notificationCount=document.getElementById('notificationCount');
   if(notificationCount) notificationCount.textContent = String((data.notifications || []).length || 0);
+  const toolbarNotificationCount=document.getElementById('toolbarNotificationCount');
+  if(toolbarNotificationCount) toolbarNotificationCount.textContent = String((data.notifications || []).length || 0);
 
   const trendList=document.getElementById('trendList');
   if(trendList){
@@ -84,6 +95,9 @@ function renderPlatformData(data){
       <li><div><strong>${item.title}</strong><span>${item.detail}</span></div></li>
     `).join('');
   }
+
+  const timeline=document.getElementById('activityTimeline');
+  if(timeline) timeline.innerHTML=(data.activity || []).map(item=>`<li><strong>${item.label}</strong><span>${item.time}</span></li>`).join('');
 }
 
 async function updatePlatformMetrics(){
@@ -117,6 +131,10 @@ function getCommunityPosts(){
 
 let communityPosts=getCommunityPosts();
 
+function escapeHTML(value){
+  return String(value).replace(/[&<>\'"]/g, character=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[character]));
+}
+
 function formatRelativeTime(time){
   const diff=Date.now()-Number(time);
   const mins=Math.floor(diff/60000);
@@ -142,15 +160,16 @@ function renderPosts(){
     return;
   }
   feed.innerHTML=communityPosts.map(post=>`
-    <article class="post-card glass-panel" id="community-post-${post.id}" data-post-id="${post.id}">
+    <article class="post-card glass-panel" id="community-post-${escapeHTML(post.id)}" data-post-id="${escapeHTML(post.id)}">
       <div class="post-head">
-        <div class="avatar">${post.avatar}</div>
+        <div class="avatar">${escapeHTML(post.avatar)}</div>
         <div class="post-author">
-          <strong>${post.name}</strong>
-          <span>${post.handle} · ${formatRelativeTime(post.timestamp)}</span>
+          <strong>${escapeHTML(post.name)}</strong>
+          <span>${escapeHTML(post.handle)} · ${formatRelativeTime(post.timestamp)}</span>
         </div>
+        <button class="icon-btn post-profile" type="button" data-profile="${escapeHTML(post.handle)}" aria-label="Open ${escapeHTML(post.name)} profile" title="Profile">↗</button>
       </div>
-      <p class="post-text">${post.text}</p>
+      <p class="post-text">${escapeHTML(post.text)}</p>
       <div class="reaction-row" role="group" aria-label="Post reactions">
         <button class="reaction-btn${post.userReaction==='like'?' active':''}" data-post-id="${post.id}" data-reaction="like" type="button" aria-label="Like post"><span>❤️</span><span>${post.reactions.like||0}</span></button>
         <button class="reaction-btn${post.userReaction==='hub'?' active':''}" data-post-id="${post.id}" data-reaction="hub" type="button" aria-label="Hub post"><span>💜</span><span>${post.reactions.hub||0}</span></button>
@@ -159,6 +178,8 @@ function renderPosts(){
       </div>
       <div class="post-actions">
         <button class="post-action comment-toggle" data-post-id="${post.id}" type="button">💬 Comment</button>
+        <button class="post-action share-toggle" data-post-id="${post.id}" type="button">↗ Share</button>
+        <button class="post-action bookmark-btn${post.bookmarked?' active':''}" data-post-id="${post.id}" type="button" aria-pressed="${Boolean(post.bookmarked)}">🔖 Bookmark</button>
         <div class="share-group">
           <button class="post-action share-option" data-share="facebook" data-post-id="${post.id}" type="button">Facebook</button>
           <button class="post-action share-option" data-share="x" data-post-id="${post.id}" type="button">X</button>
@@ -172,8 +193,8 @@ function renderPosts(){
           ${(post.comments||[]).map(comment=>`
             <div class="comment-item${comment.author==='You'?' own':''}" data-comment-id="${comment.id}">
               <div class="comment-bubble">
-                <strong>${comment.author}</strong>
-                <span>${comment.text}</span>
+                <strong>${escapeHTML(comment.author)}</strong>
+                <span>${escapeHTML(comment.text)}</span>
               </div>
               <div class="comment-tools">
                 <button class="mini-btn reply-btn" type="button" data-post-id="${post.id}" data-comment-id="${comment.id}" data-author="${comment.author}">Reply</button>
@@ -238,6 +259,7 @@ composer?.addEventListener('submit',e=>{
     comments:[]
   };
   communityPosts.unshift(newPost);
+  window.HubCoreAPI?.createPost(newPost).catch(()=>{});
   persistPosts();
   renderPosts();
   composer.reset();
@@ -246,6 +268,30 @@ composer?.addEventListener('submit',e=>{
 });
 
 document.addEventListener('click',e=>{
+  const shareToggle=e.target.closest('.share-toggle');
+  if(shareToggle){
+    const postId=shareToggle.dataset.postId;
+    const group=document.querySelector(`.post-card[data-post-id="${postId}"] .share-group`);
+    group?.classList.toggle('active');
+    return;
+  }
+
+  const bookmark=e.target.closest('.bookmark-btn');
+  if(bookmark){
+    const post=communityPosts.find(entry=>entry.id===bookmark.dataset.postId);
+    if(!post) return;
+    post.bookmarked=!post.bookmarked;
+    persistPosts();
+    renderPosts();
+    return;
+  }
+
+  const profile=e.target.closest('.post-profile');
+  if(profile){
+    document.getElementById('founder')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
   const reaction=e.target.closest('.reaction-btn');
   if(reaction){
     const postId=reaction.dataset.postId;
@@ -262,6 +308,7 @@ document.addEventListener('click',e=>{
       }
       post.reactions[reactionKey] = (post.reactions[reactionKey]||0)+1;
       post.userReaction=reactionKey;
+        window.HubCoreAPI?.toggleReaction(postId,reactionKey).catch(()=>{});
     }
     persistPosts();
     renderPosts();
@@ -384,6 +431,16 @@ const counterObserver=new IntersectionObserver(entries=>{
 },{threshold:0.5});
 
 document.querySelectorAll('.counter').forEach(counter=>counterObserver.observe(counter));
+
+document.getElementById('platformSearch')?.addEventListener('input',event=>{
+  const query=event.target.value.trim().toLowerCase();
+  document.querySelectorAll('.post-card, .creator-card, .project-list li').forEach(item=>{
+    item.hidden=Boolean(query && !item.textContent.toLowerCase().includes(query));
+  });
+});
+
+document.getElementById('notificationButton')?.addEventListener('click',()=>document.getElementById('notificationList')?.closest('.platform-panel')?.scrollIntoView({behavior:'smooth',block:'center'}));
+document.getElementById('profileButton')?.addEventListener('click',()=>document.getElementById('founder')?.scrollIntoView({behavior:'smooth',block:'center'}));
 
 document.querySelectorAll('.follow-btn').forEach(button=>button.addEventListener('click',()=>{
   const isFollowing = button.classList.toggle('following');
