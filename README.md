@@ -1,18 +1,26 @@
-# HubCore Vibes — Complete Cloudflare Package
+# HubCore Vibes — Cloudflare Pages Package
 
-This is a single static website package containing the rebuilt HubCore Vibes site, the Reality Switch showcase, local preview videos, artwork, and a founder-photo placeholder.
+This is a static Cloudflare Pages site containing the HubCore Vibes site, Reality Switch showcase, local preview videos, artwork, and the `/api/platform` Pages Function.
 
 ## Deploy to Cloudflare Pages
-1. Open Cloudflare Dashboard → Workers & Pages.
-2. Create a Pages application / upload assets (wording can vary by dashboard version).
-3. Upload the contents of this ZIP as the site assets.
-4. Make sure `index.html` is at the root of the deployed site.
-5. Deploy.
+Use the GitHub Pages deployment described in the project handoff. The production branch is `main`.
+
+Build settings:
+- Framework preset: `None`
+- Build command: leave blank
+- Build output directory: `.`
+- Root directory: `/`
+- Production branch: `main`
+- Environment variables: none required
+
+The `_redirects` file sends `www.hubcorevibes.com` to the canonical apex domain.
 
 ## Add the founder photo later
-Open the Founder section and use **Add my photo** to preview a photo in your browser. To make the photo permanent for all visitors, replace `assets/founder/founder-photo-placeholder.svg` with the desired image before redeploying.
+Upload the real image to the repository at `assets/founder.jpg` and commit it to `main`. The Founder section references that path. Until the file is uploaded, the existing placeholder is used as a local fallback so the deployed page does not show a broken image.
+
+The **Add my photo** control only previews an image in the current browser; it does not upload anything to GitHub or Cloudflare.
 
 ## Notes
 - Reality Switch is intentionally described as a separate game project.
 - All video files are local assets in `assets/videos/`.
-- The package does not require a backend to display the site.
+- The package does not require a database or KV namespace. The platform function returns its built-in metrics when those services are not configured.
