@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HubCore Vibes Admin</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+body{padding:32px 5%}.admin-wrap{max-width:1200px;margin:auto}.admin-login,.admin-panel{background:rgba(18,13,29,.88);border:1px solid rgba(168,85,247,.35);border-radius:24px;padding:24px;box-shadow:var(--shadow)}.admin-login{max-width:420px;margin:10vh auto}.admin-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:22px 0}.admin-stat{padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.03)}.admin-stat strong{display:block;font-size:1.6rem}.admin-section{margin-top:28px}.admin-list{display:grid;gap:12px}.admin-item{padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}.admin-item small{display:block;color:var(--muted)}.admin-actions{display:flex;gap:10px;margin-top:10px}.admin-form input{width:100%;margin:12px 0;padding:14px;border-radius:12px;border:1px solid var(--line);background:#0d0916;color:#fff}@media(max-width:850px){.admin-grid{grid-template-columns:repeat(2,1fr)}} 
+</style>
+</head>
+<body>
+<main class="admin-wrap">
+<div class="eyebrow">HUBCORE VIBES</div><h1>Community Admin</h1>
+<section id="loginBox" class="admin-login"><h2>Private access</h2><form id="adminLogin" class="admin-form"><input id="adminPassword" type="password" placeholder="Admin password" required><button class="btn primary" type="submit">Enter dashboard</button><p id="loginMessage"></p></form></section>
+<section id="adminPanel" class="admin-panel" hidden>
+<div class="actions"><button class="btn ghost" id="refreshAdmin">Refresh</button><button class="btn ghost" id="logoutAdmin">Logout</button></div>
+<div class="admin-grid" id="adminStats"></div>
+<div class="admin-section"><h2>Community comments</h2><div class="admin-list" id="adminComments"></div></div>
+<div class="admin-section"><h2>Early access requests</h2><div class="admin-list" id="adminEarly"></div></div>
+<div class="admin-section"><h2>Investor enquiries</h2><div class="admin-list" id="adminInvestors"></div></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s), esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function loadAdmin(){
+ const r=await fetch("/api/admin/dashboard",{cache:"no-store"}); if(!r.ok) throw new Error("Unauthorized");
+ const d=await r.json(); $("#loginBox").hidden=true; $("#adminPanel").hidden=false;
+ $("#adminStats").innerHTML=Object.entries(d.totals).map(([k,v])=>'<div class="admin-stat"><strong>'+esc(v)+'</strong><span>'+esc(k.replace(/([A-Z])/g," $1"))+'</span></div>').join("");
+ $("#adminComments").innerHTML=d.comments.map(x=>'<article class="admin-item"><strong>'+esc(x.display_name)+(x.country?' · '+esc(x.country):"")+'</strong><p>'+esc(x.body)+'</p><small>'+esc(x.created_at)+'</small><div class="admin-actions"><button class="btn ghost" data-hide="'+esc(x.id)+'">Hide</button></div></article>').join("")||"<p>No comments yet.</p>";
+ $("#adminEarly").innerHTML=d.earlyAccessRequests.map(x=>'<article class="admin-item"><strong>'+esc(x.full_name)+"</strong><p>"+esc(x.email)+" · "+esc(x.country||"")+'</p><small>Username: '+esc(x.desired_username||"-")+'</small><p>'+esc(x.message||x.interests||"")+'</p></article>').join("")||"<p>No requests yet.</p>";
+ $("#adminInvestors").innerHTML=d.investorInquiries.map(x=>'<article class="admin-item"><strong>'+esc(x.full_name)+"</strong><p>"+esc(x.email)+" · "+esc(x.company||"")+'</p><small>'+esc(x.investment_interest||"")+'</small><p>'+esc(x.message)+'</p></article>').join("")||"<p>No investor enquiries yet.</p>";
+}
+$("#adminLogin").addEventListener("submit",async e=>{e.preventDefault();const r=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("#adminPassword").value})});if(!r.ok){$("#loginMessage").textContent="Access denied.";return}$("#loginMessage").textContent="";loadAdmin().catch(()=>{});});
+$("#refreshAdmin").addEventListener("click",()=>loadAdmin().catch(()=>{}));
+$("#logoutAdmin").addEventListener("click",async()=>{await fetch("/api/admin/logout",{method:"POST"});location.reload()});
+document.addEventListener("click",async e=>{const id=e.target.dataset.hide;if(!id)return;await fetch("/api/admin/comments/"+encodeURIComponent(id)+"/hide",{method:"POST"});loadAdmin().catch(()=>{})});
+loadAdmin().catch(()=>{});
+</script>
+</body></html>
