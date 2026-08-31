@@ -5,10 +5,21 @@
     if (!document.querySelector('link[data-hubcore-polish]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/site-polish.css?v=20260831c';
+      link.href = '/site-polish.css?v=20260831e';
       link.dataset.hubcorePolish = '1';
       document.head.appendChild(link);
     }
+  }
+
+  function ensureInvestorNav() {
+    const nav = document.querySelector('.nav nav');
+    if (!nav || nav.querySelector('a[href="#investors"]')) return;
+    const early = nav.querySelector('a[href="#contact"]');
+    const link = document.createElement('a');
+    link.href = '#investors';
+    link.textContent = 'Investors';
+    if (early) nav.insertBefore(link, early);
+    else nav.appendChild(link);
   }
 
   function buildInvestorSection() {
@@ -116,7 +127,7 @@
       });
 
       const parent = cards[0]?.parentElement;
-      if (parent && !parent.querySelector('.live-reach-note')) {
+      if (parent && !document.querySelector('.live-reach-note')) {
         const note = document.createElement('p');
         note.className = 'live-reach-note';
         note.textContent = 'Live figures are read directly from HubCore Vibes community activity stored in Cloudflare D1.';
@@ -172,6 +183,7 @@
   function init() {
     ensureAssets();
     buildInvestorSection();
+    ensureInvestorNav();
     simplifyTrailer();
     bindInvestorForm();
     updateReach();
