@@ -1,0 +1,71 @@
+name: Patch HubCore Vibes site
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch site content
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          s, n = re.subn(
+              r'\n<section class="section creators reveal">.*?</section>\n\n(?=<section id="founder")',
+              '\n',
+              s,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise SystemExit(f'Featured Creators section not removed (matches={n})')
+
+          old_img = 'src="assets/founder.jpg" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async"'
+          new_img = 'src="assets/founder.jpg?v=20260831" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'assets/founder-yutani.svg?v=20260831\'"'
+          if old_img not in s:
+              raise SystemExit('Founder image markup not found')
+          s = s.replace(old_img, new_img, 1)
+
+          s = s.replace(
+              'A HubCore Vibes game experience currently in development.',
+              'A game experience in development that may become part of HubCore Vibes — while also having the potential to grow into a standalone game of its own.',
+              1,
+          )
+          s = s.replace(
+              'Reality Switch is a separate game experience being created and developed by Yutani Pretorius under HubCore Vibes. Your decisions influence future events, missions, consequences, relationships, environments, available paths and what happens next. You are not selecting a static reality; the reality you experience is shaped by what you decide and what those decisions set in motion.',
+              'Reality Switch is being created and developed by Yutani Pretorius as a major game concept connected to the HubCore Vibes universe. It may eventually become a live game experience inside HubCore Vibes, potentially through HubPlay, while also remaining capable of evolving into a standalone game of its own. Your decisions influence future events, missions, consequences, relationships, environments, available paths and what happens next. You are not selecting a static reality; the reality you experience is shaped by what you decide and what those decisions set in motion.',
+              1,
+          )
+          s = s.replace(
+              'Reality Switch is a separate game experience associated with the HubCore Vibes universe, not one of the eight core HubCore Vibes platforms.',
+              'Reality Switch is a developing game concept connected to the HubCore Vibes universe. Its final direction may see it become a playable HubCore Vibes experience, a standalone game, or both.',
+              1,
+          )
+
+          p.write_text(s, encoding='utf-8')
+          Path('_redirects').write_text('', encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html _redirects
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix founder image fallback and refine Reality Switch messaging'
+          git push
