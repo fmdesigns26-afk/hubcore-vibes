@@ -3,7 +3,7 @@
 This is a static Cloudflare Pages site containing the HubCore Vibes site, Reality Switch showcase, local preview videos, artwork, and the `/api/platform` Pages Function.
 
 ## Deploy to Cloudflare Pages
-Use the GitHub Pages deployment described in the project handoff. The production branch is `main`.
+The production branch is `main`.
 
 Build settings:
 - Framework preset: `None`
@@ -15,10 +15,10 @@ Build settings:
 
 The `_redirects` file sends `www.hubcorevibes.com` to the canonical apex domain.
 
-## Add the founder photo later
-Upload the real image to the repository at `assets/founder.jpg` and commit it to `main`. The Founder section references that path. Until the file is uploaded, the existing placeholder is used as a local fallback so the deployed page does not show a broken image.
+## Founder photo
+The production Founder section uses the high-quality portrait at `assets/founder.jpg`. The image is loaded directly from the repository and the Founder layout is optimized for both desktop and mobile so the portrait remains sharp and correctly framed.
 
-The **Add my photo** control only previews an image in the current browser; it does not upload anything to GitHub or Cloudflare.
+The Founder section displays Yutani Pretorius as Founder · Creator · Developer · Owner · Visionary, with South Africa shown beneath the title.
 
 ## Notes
 - Reality Switch is intentionally described as a separate game project.
@@ -26,3 +26,6 @@ The **Add my photo** control only previews an image in the current browser; it d
 - The package does not require a database or KV namespace. The platform function returns its built-in metrics when those services are not configured.
 - `platform-api.js` is the browser-side integration boundary. Its placeholder methods can later be connected to Firebase, Supabase, Cloudflare D1/Workers, or WebSockets without changing the platform UI.
 - Community posts and reactions currently use local browser storage and remain available as an offline preview until a service is connected.
+
+## Deployment sync check
+This commit is intentionally used to trigger the Cloudflare Pages Git integration so the latest `main` branch—including the current Founder photo and responsive portrait fixes—is published to production.
