@@ -1896,3 +1896,102 @@ footer {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Real community + private contact forms */
+.community-fields,
+.contact-grid {
+  display: grid;
+  gap: 14px;
+}
+.community-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 14px; }
+.composer input,
+.composer textarea,
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  border: 1px solid rgba(188, 152, 255, 0.3);
+  border-radius: 14px;
+  background: rgba(6, 5, 12, 0.78);
+  color: var(--text);
+  padding: 14px 15px;
+  font: inherit;
+  outline: none;
+}
+.composer input:focus,
+.composer textarea:focus,
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: rgba(191, 154, 255, 0.85);
+  box-shadow: 0 0 0 3px rgba(143,77,255,0.12);
+}
+.form-message {
+  min-height: 1.5em;
+  margin: 12px 0 0;
+  color: rgba(218, 201, 255, 0.9);
+  font-size: .9rem;
+}
+.live-community-status {
+  max-width: 760px;
+  margin: 28px auto 0;
+  padding: 24px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: center;
+  text-align: center;
+}
+.live-community-status strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2rem, 7vw, 4rem);
+  color: var(--white);
+}
+.live-community-status span { color: var(--muted); }
+.trailer-coming {
+  margin-top: 28px;
+  padding: 42px;
+  text-align: center;
+}
+.trailer-coming h3 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  letter-spacing: .08em;
+}
+.trailer-coming p { margin: 10px 0 0; }
+.contact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 30px;
+}
+.contact-form {
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+}
+.contact-form h3 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.4rem;
+}
+.contact-form p { margin: 0 0 6px; }
+.contact-form button { justify-self: start; }
+.post-card .reaction-row {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.post-card .post-action { margin: 0; }
+.mini-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+}
+.mini-btn:hover { color: var(--white); }
+
+@media (max-width: 760px) {
+  .community-fields,
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-form { padding: 18px; }
+  .live-community-status { align-items: center; flex-direction: column; }
+}
