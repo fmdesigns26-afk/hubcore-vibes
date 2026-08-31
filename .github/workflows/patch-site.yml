@@ -25,45 +25,40 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          s, n = re.subn(
+          s, _ = re.subn(
               r'\n<section class="section creators reveal">.*?</section>\n\n(?=<section id="founder")',
               '\n',
               s,
               count=1,
               flags=re.S,
           )
-          if n != 1:
-              raise SystemExit(f'Featured Creators section not removed (matches={n})')
 
           old_img = 'src="assets/founder.jpg" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async"'
-          new_img = 'src="assets/founder.jpg?v=20260831" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'assets/founder-yutani.svg?v=20260831\'"'
+          new_img = 'src="assets/founder.jpg?v=20260831c" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'assets/founder-yutani.svg?v=20260831c\'"'
           if old_img in s:
               s = s.replace(old_img, new_img, 1)
 
-          s = s.replace(
-              'A HubCore Vibes game experience currently in development.',
-              'A game experience in development that may become part of HubCore Vibes — while also having the potential to grow into a standalone game of its own.',
-              1,
-          )
-          s = s.replace(
-              'Reality Switch is a separate game experience being created and developed by Yutani Pretorius under HubCore Vibes. Your decisions influence future events, missions, consequences, relationships, environments, available paths and what happens next. You are not selecting a static reality; the reality you experience is shaped by what you decide and what those decisions set in motion.',
-              'Reality Switch is being created and developed by Yutani Pretorius as a major game concept connected to the HubCore Vibes universe. It may eventually become a live game experience inside HubCore Vibes, potentially through HubPlay, while also remaining capable of evolving into a standalone game of its own. Your decisions influence future events, missions, consequences, relationships, environments, available paths and what happens next. You are not selecting a static reality; the reality you experience is shaped by what you decide and what those decisions set in motion.',
-              1,
-          )
-          s = s.replace(
-              'Reality Switch is a separate game experience associated with the HubCore Vibes universe, not one of the eight core HubCore Vibes platforms.',
-              'Reality Switch is a developing game concept connected to the HubCore Vibes universe. Its final direction may see it become a playable HubCore Vibes experience, a standalone game, or both.',
-              1,
-          )
+          # Load the live layer explicitly rather than via document.write.
+          if 'live-fixes.css?v=20260831c' not in s:
+              s = s.replace(
+                  '<link rel="stylesheet" href="styles.css">',
+                  '<link rel="stylesheet" href="styles.css?v=20260831c">\n<link rel="stylesheet" href="live-fixes.css?v=20260831c">',
+                  1,
+              )
+
+          old_scripts = '<script src="platform-api.js"></script><script src="script.js"></script>'
+          new_scripts = '<script src="platform-api.js?v=20260831c"></script><script src="live-community.js?v=20260831c"></script><script src="script.js?v=20260831c"></script>'
+          if old_scripts in s:
+              s = s.replace(old_scripts, new_scripts, 1)
+          else:
+              s = re.sub(
+                  r'<script src="platform-api\.js(?:\?[^\"]*)?"></script>\s*<script src="(?:live-community\.js(?:\?[^\"]*)?"></script>\s*)?<script src="script\.js(?:\?[^\"]*)?"></script>',
+                  new_scripts,
+                  s,
+                  count=1,
+              )
 
           p.write_text(s, encoding='utf-8')
-
-          css = Path('styles.css')
-          cs = css.read_text(encoding='utf-8')
-          marker = '/* HubCore Founder image rendering fix */'
-          if marker not in cs:
-              cs += '''\n\n/* HubCore Founder image rendering fix */\n#founder img[src*="founder"] {\n  width: min(320px, 72vw) !important;\n  height: auto !important;\n  max-width: 100% !important;\n  max-height: 420px !important;\n  object-fit: contain !important;\n  object-position: center center !important;\n  transform: none !important;\n}\n\n@media (min-width: 900px) {\n  #founder img[src*="founder"] {\n    width: min(360px, 30vw) !important;\n    max-height: 460px !important;\n  }\n}\n'''
-              css.write_text(cs, encoding='utf-8')
 
           Path('_redirects').write_text('', encoding='utf-8')
           PY
@@ -72,7 +67,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html styles.css _redirects
+          git add index.html _redirects
           git diff --cached --quiet && exit 0
-          git commit -m 'Fix founder image rendering size and cache handling'
+          git commit -m 'Load live community layer directly and bust browser cache'
           git push
