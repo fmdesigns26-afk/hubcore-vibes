@@ -1,0 +1,5 @@
+{
+  "name":"hubcore-vibes","private":true,"version":"0.1.0","type":"module",
+  "scripts":{"test":"node --test tests/*.test.mjs","check":"node --check script.js && node --check platform-api.js && node --check functions/lib/community.js && node --check functions/api/community.js"},
+  "devDependencies":{"wrangler":"^4.33.1"}
+}
