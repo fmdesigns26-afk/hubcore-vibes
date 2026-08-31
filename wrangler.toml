@@ -1,3 +1,8 @@
 name = "hubcore-vibes"
 compatibility_date = "2024-10-01"
 pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hubcore-vibes-db"
+database_id = "92e0fb3c-a1d5-493f-b616-af60f8b7585a"
