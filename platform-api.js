@@ -49,3 +49,32 @@ window.HubCoreAPI = {
   },
   async subscribeToActivity() { return () => {}; }
 };
+
+(function loadHubCoreProductionLayers(){
+  const version = '20260831d';
+  const styles = [
+    ['/live-fixes.css', 'hubcore-live-fixes'],
+    ['/site-polish.css', 'hubcore-site-polish']
+  ];
+  for (const [href, id] of styles) {
+    if (document.getElementById(id)) continue;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = `${href}?v=${version}`;
+    document.head.appendChild(link);
+  }
+
+  const scripts = [
+    ['/live-community.js', 'hubcore-live-community'],
+    ['/site-polish.js', 'hubcore-site-polish']
+  ];
+  for (const [src, id] of scripts) {
+    if (document.getElementById(id)) continue;
+    const script = document.createElement('script');
+    script.id = id;
+    script.src = `${src}?v=${version}`;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+})();
