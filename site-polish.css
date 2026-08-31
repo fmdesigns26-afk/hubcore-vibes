@@ -1,0 +1,130 @@
+/* HubCore Vibes production polish: founder, trailer, live reach and investors */
+
+/* Founder portrait: centre the actual portrait and remove the oversized empty frame. */
+#founder .profile-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(330px, 88vw) !important;
+  min-height: 0 !important;
+  padding: 14px !important;
+  margin-inline: auto !important;
+}
+#founder .photo-frame {
+  width: min(286px, 76vw) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 4 / 5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+#founder #profileImage,
+#founder .photo-frame img {
+  width: 100% !important;
+  max-width: 286px !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  margin: 0 auto !important;
+  transform: none !important;
+}
+
+/* Reality Switch: keep the game footage visible instead of covering it with title cards. */
+#reality .trailer-player {
+  min-height: 420px !important;
+  overflow: hidden !important;
+}
+#reality .trailer-player video {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 420px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+#reality .trailer-card {
+  display: none !important;
+}
+#reality .trailer-vignette {
+  opacity: .18 !important;
+  pointer-events: none !important;
+}
+#reality .trailer-play {
+  bottom: 18px !important;
+  left: 18px !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  background: rgba(8, 5, 18, .82) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Real D1-backed community activity cards. */
+.live-reach-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: .78rem;
+  letter-spacing: .04em;
+}
+
+/* Investor interest area. */
+.investor-section {
+  position: relative;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 80px 5%;
+}
+.investor-layout {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 34px;
+  align-items: start;
+}
+.investor-copy,
+.investor-form-card {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(25,16,40,.88), rgba(10,8,18,.9));
+  box-shadow: var(--shadow);
+}
+.investor-copy { padding: 34px; }
+.investor-copy h2 { margin: 0 0 18px; font-size: clamp(2.2rem, 5vw, 4rem); }
+.investor-copy p { color: var(--muted); }
+.investor-points { display: grid; gap: 12px; margin-top: 24px; }
+.investor-points span { padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.025); }
+.investor-form-card { padding: 28px; }
+.investor-form { display: grid; gap: 16px; }
+.investor-form .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.investor-form label { display: grid; gap: 7px; font-size: .78rem; color: var(--muted); font-weight: 700; letter-spacing: .05em; }
+.investor-form input,
+.investor-form select,
+.investor-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.investor-form select option { color: #111; }
+.investor-form input:focus,
+.investor-form select:focus,
+.investor-form textarea:focus { border-color: var(--line-strong); box-shadow: 0 0 0 3px rgba(143,77,255,.12); }
+.investor-consent { display: flex !important; grid-template-columns: none !important; align-items: flex-start; gap: 10px !important; font-weight: 500 !important; }
+.investor-consent input { width: auto; margin-top: 4px; }
+.investor-status { min-height: 24px; color: var(--muted); font-size: .88rem; }
+.investor-status.success { color: #b6ffcf; }
+.investor-status.error { color: #ffb9c3; }
+.investor-privacy { font-size: .72rem; color: var(--muted); margin: 0; }
+
+@media (max-width: 820px) {
+  .investor-layout { grid-template-columns: 1fr; }
+  .investor-form .field-row { grid-template-columns: 1fr; }
+  #reality .trailer-player,
+  #reality .trailer-player video { min-height: 300px !important; }
+}
