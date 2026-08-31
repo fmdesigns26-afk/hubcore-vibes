@@ -1,0 +1,8 @@
+# Never commit a real .dev.vars file.
+ADMIN_PASSWORD=replace-with-a-strong-admin-password
+ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
+RESEND_API_KEY=re_xxxxxxxxx
+CONTACT_TO_EMAIL=your-private-inbox@example.com
+CONTACT_FROM_EMAIL=HubCore Vibes <hello@your-verified-domain.com>
+# Optional: only enable after the frontend Turnstile widget has been added.
+# TURNSTILE_SECRET=0x...
