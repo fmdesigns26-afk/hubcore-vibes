@@ -3,20 +3,31 @@ function cleanText(value,max){return String(value??'').trim().slice(0,max);}
 async function ensureSchema(db){await db.batch([
   db.prepare(`CREATE TABLE IF NOT EXISTS community_posts (id TEXT PRIMARY KEY,name TEXT NOT NULL,handle TEXT NOT NULL,avatar TEXT NOT NULL,timestamp INTEGER NOT NULL,text TEXT NOT NULL,reactions_json TEXT NOT NULL DEFAULT '{"like":0,"hub":0,"fire":0,"inspire":0}')`),
   db.prepare(`CREATE TABLE IF NOT EXISTS community_comments (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,author TEXT NOT NULL,text TEXT NOT NULL,timestamp INTEGER NOT NULL,reply_to TEXT,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`),
+  db.prepare(`CREATE TABLE IF NOT EXISTS community_shares (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,timestamp INTEGER NOT NULL,channel TEXT,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`),
   db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_posts_timestamp ON community_posts(timestamp DESC)`),
-  db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id,timestamp ASC)`)
+  db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id,timestamp ASC)`),
+  db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_shares_post_id ON community_shares(post_id,timestamp DESC)`)
 ]);}
 async function removeLegacyDemoData(db){
   await db.prepare(`DELETE FROM community_comments WHERE id IN ('c-1','c-2') OR post_id IN ('seed-1','seed-2')`).run();
+  await db.prepare(`DELETE FROM community_shares WHERE post_id IN ('seed-1','seed-2')`).run();
   await db.prepare(`DELETE FROM community_posts WHERE id IN ('seed-1','seed-2')`).run();
 }
 async function readPosts(db){
   const posts=await db.prepare(`SELECT id,name,handle,avatar,timestamp,text,reactions_json FROM community_posts ORDER BY timestamp DESC LIMIT 100`).all();
-  const ids=posts.results.map(p=>p.id);let comments=[];
-  if(ids.length){const ph=ids.map(()=>'?').join(',');const result=await db.prepare(`SELECT id,post_id,author,text,timestamp,reply_to FROM community_comments WHERE post_id IN (${ph}) ORDER BY timestamp ASC`).bind(...ids).all();comments=result.results;}
-  const map=new Map();
-  for(const c of comments){if(!map.has(c.post_id))map.set(c.post_id,[]);map.get(c.post_id).push({id:c.id,author:c.author,text:c.text,timestamp:Number(c.timestamp),replyTo:c.reply_to||null});}
-  return posts.results.map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),comments:map.get(p.id)||[]}));
+  const ids=posts.results.map(p=>p.id);let comments=[],shares=[];
+  if(ids.length){
+    const ph=ids.map(()=>'?').join(',');
+    const [commentResult,shareResult]=await Promise.all([
+      db.prepare(`SELECT id,post_id,author,text,timestamp,reply_to FROM community_comments WHERE post_id IN (${ph}) ORDER BY timestamp ASC`).bind(...ids).all(),
+      db.prepare(`SELECT post_id,COUNT(*) AS count FROM community_shares WHERE post_id IN (${ph}) GROUP BY post_id`).bind(...ids).all()
+    ]);
+    comments=commentResult.results||[];shares=shareResult.results||[];
+  }
+  const commentMap=new Map(),shareMap=new Map();
+  for(const c of comments){if(!commentMap.has(c.post_id))commentMap.set(c.post_id,[]);commentMap.get(c.post_id).push({id:c.id,author:c.author,text:c.text,timestamp:Number(c.timestamp),replyTo:c.reply_to||null});}
+  for(const s of shares){shareMap.set(s.post_id,Number(s.count||0));}
+  return posts.results.map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),comments:commentMap.get(p.id)||[],shares:shareMap.get(p.id)||0}));
 }
 export async function onRequestGet(context){const {env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);try{await ensureSchema(env.DB);await removeLegacyDemoData(env.DB);return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){return json({error:'Unable to load community data.'},500);}}
 export async function onRequestPost(context){
@@ -41,6 +52,14 @@ export async function onRequestPost(context){
       const current=await env.DB.prepare('SELECT reactions_json FROM community_posts WHERE id=?').bind(postId).first();if(!current)return json({error:'Post not found.'},404);
       const reactions=JSON.parse(current.reactions_json||'{}');reactions[reaction]=Math.max(0,Number(reactions[reaction]||0)+delta);
       await env.DB.prepare('UPDATE community_posts SET reactions_json=? WHERE id=?').bind(JSON.stringify(reactions),postId).run();return json({ok:true,synced:true,reactions});
+    }
+    if(action==='record_share'){
+      const id=cleanText(body.id,120),postId=cleanText(body.postId,120),channel=cleanText(body.channel,40);
+      if(!id||!postId)return json({error:'Share id and post id are required.'},400);
+      const exists=await env.DB.prepare('SELECT id FROM community_posts WHERE id=?').bind(postId).first();if(!exists)return json({error:'Post not found.'},404);
+      await env.DB.prepare('INSERT OR IGNORE INTO community_shares (id,post_id,timestamp,channel) VALUES (?,?,?,?)').bind(id,postId,Date.now(),channel||null).run();
+      const total=await env.DB.prepare('SELECT COUNT(*) AS count FROM community_shares WHERE post_id=?').bind(postId).first();
+      return json({ok:true,synced:true,shares:Number(total?.count||0)});
     }
     if(action==='delete_comment'){const id=cleanText(body.commentId,120);if(!id)return json({error:'Comment id is required.'},400);await env.DB.prepare('DELETE FROM community_comments WHERE id=?').bind(id).run();return json({ok:true,synced:true});}
     return json({error:'Unknown community action.'},400);
