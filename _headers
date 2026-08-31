@@ -1,3 +1,13 @@
 /
   Link: <https://hubcorevibes.com/>; rel="canonical"
   X-Robots-Tag: index, follow
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/api/*
+  Cache-Control: no-cache, no-store, must-revalidate
