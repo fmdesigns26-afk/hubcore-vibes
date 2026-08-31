@@ -91,94 +91,9 @@
 
 <section class="section roadmap reveal"><div class="eyebrow">THE ROADMAP</div><h2>From concept <span>to universe.</span></h2><div class="timeline"><div><b>01</b><h3>Foundation</h3><p>Core identity, MVP architecture and community foundation.</p></div><div><b>02</b><h3>Expansion</h3><p>Music, video, creators and richer social experiences.</p></div><div><b>03</b><h3>Lifestyle</h3><p>Commerce, travel and connected everyday services.</p></div><div><b>04</b><h3>Full Universe</h3><p>Deeper AI, gaming and mobility concepts across the ecosystem.</p></div></div></section>
 
-<section id="platform" class="section platform reveal">
-  <div class="section-heading"><div class="eyebrow">LIVE PLATFORM</div><h2>Pulse of the <span>community.</span></h2><div class="platform-toolbar"><label class="search-box"><span aria-hidden="true">⌕</span><input id="platformSearch" type="search" placeholder="Search the universe" aria-label="Search the HubCore universe"></label><button class="icon-btn" id="notificationButton" type="button" aria-label="Open notifications" title="Notifications">♢<span class="toolbar-badge" id="toolbarNotificationCount">0</span></button><button class="icon-btn" id="profileButton" type="button" aria-label="Open profile" title="Profile">Y</button></div></div>
-  <div class="platform-grid">
-    <div class="platform-panel glass-panel">
-      <div class="panel-header"><h3>Live metrics</h3><span class="live-dot"></span></div>
-      <div class="metric-grid" id="liveMetrics" aria-live="polite">
-        <div class="mini-stat"><span class="metric-value" data-metric="members">0</span><small>Members</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="creators">0</span><small>Creators</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="posts">0</span><small>Posts</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="projects">0</span><small>Projects</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="events">0</span><small>Events</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="games">0</span><small>Games</small></div>
-        <div class="mini-stat"><span class="metric-value" data-metric="messages">0</span><small>Messages</small></div>
-      </div>
-    </div>
-    <div class="platform-panel glass-panel">
-      <div class="panel-header"><h3>Trending</h3><span>Now</span></div>
-      <ul class="trend-list" id="trendList"></ul>
-    </div>
-    <div class="platform-panel glass-panel">
-      <div class="panel-header"><h3>Online now</h3><span id="onlineCount">0</span></div>
-      <ul class="online-list" id="onlineList"></ul>
-    </div>
-    <div class="platform-panel glass-panel">
-      <div class="panel-header"><h3>Notifications</h3><span id="notificationCount">0</span></div>
-      <ul class="note-list" id="notificationList"></ul>
-    </div>
-  </div>
-</section>
+<section id="platform" class="section platform reveal"><div class="section-heading"><div class="eyebrow">EARLY COMMUNITY ACCESS</div><h2>The conversation is <span>real.</span></h2><p class="lead">The first live community layer is opening now. Real comments, likes and shares will appear here once the Cloudflare database is connected.</p></div><div class="live-community-status glass-panel" id="liveCommunityStatus"><strong>Community opening…</strong></div></section>
 
-<section id="community" class="section community reveal">
-  <div class="section-heading"><div class="eyebrow">LIVE COMMUNITY</div><h2>Share the vibe.<br><span>Shape the universe.</span></h2></div>
-  <div class="community-shell glass-panel">
-    <form id="communityForm" class="composer" aria-label="Share your thoughts">
-      <div class="composer-top">
-        <div class="avatar avatar-large">Y</div>
-        <div class="composer-meta"><strong>You</strong><span>@visitor</span></div>
-      </div>
-      <textarea id="composerInput" rows="3" maxlength="280" placeholder="Share your thoughts with the HubCore community..."></textarea>
-      <div class="composer-actions">
-        <span class="countdown" id="composerCount">280</span>
-        <button class="btn primary" type="submit">Post</button>
-      </div>
-    </form>
-    <div class="community-main"><div class="feed-heading"><h3>Latest posts</h3><span>Live feed</span></div><div id="communityFeed" class="community-feed" aria-live="polite"></div></div>
-    <aside class="community-sidebar" aria-label="Community discovery">
-      <div class="sidebar-block"><div class="feed-heading"><h3>Creator spotlight</h3><span>Featured</span></div><div class="spotlight-card"><div class="creator-avatar">AV</div><strong>Avery Voss</strong><span>Building ambient worlds</span><button class="follow-btn" type="button">Follow</button></div></div>
-      <div class="sidebar-block"><div class="feed-heading"><h3>Featured projects</h3><span>Explore</span></div><ul class="project-list"><li><strong>Portal Atlas</strong><span>12 contributors</span></li><li><strong>Night Shift Radio</strong><span>8 contributors</span></li><li><strong>Reality Switch Wiki</strong><span>41 contributors</span></li></ul></div>
-      <div class="sidebar-block"><div class="feed-heading"><h3>Activity timeline</h3><span>Now</span></div><ol class="activity-list" id="activityTimeline"></ol></div>
-    </aside>
-  </div>
-</section>
-
-<section class="section counters reveal" id="community-metrics">
-  <div class="eyebrow">COMMUNITY REACH</div>
-  <div class="counter-grid">
-    <div class="counter-card glass-panel"><span class="counter" data-target="12840" data-suffix="+">0</span><label>Community Members</label></div>
-    <div class="counter-card glass-panel"><span class="counter" data-target="4860" data-suffix="+">0</span><label>Posts Shared</label></div>
-    <div class="counter-card glass-panel"><span class="counter" data-target="214" data-suffix="+">0</span><label>Projects Created</label></div>
-    <div class="counter-card glass-panel"><span class="counter" data-target="9320" data-suffix="+">0</span><label>Reality Switch Followers</label></div>
-  </div>
-</section>
-
-<section class="section creators reveal">
-  <div class="section-heading"><div class="eyebrow">FEATURED CREATORS</div><h2>Meet the next wave.<br><span>Of builders and storytellers.</span></h2></div>
-  <div class="creator-grid">
-    <article class="creator-card glass-panel">
-      <div class="creator-avatar">AV</div>
-      <div class="creator-meta"><h3>Avery Voss</h3><span>Creative Tech</span></div>
-      <button class="follow-btn" type="button">Follow</button>
-    </article>
-    <article class="creator-card glass-panel">
-      <div class="creator-avatar">MK</div>
-      <div class="creator-meta"><h3>Mila Kade</h3><span>Community Design</span></div>
-      <button class="follow-btn" type="button">Follow</button>
-    </article>
-    <article class="creator-card glass-panel">
-      <div class="creator-avatar">JN</div>
-      <div class="creator-meta"><h3>Jalen North</h3><span>Game Worlds</span></div>
-      <button class="follow-btn" type="button">Follow</button>
-    </article>
-    <article class="creator-card glass-panel">
-      <div class="creator-avatar">SE</div>
-      <div class="creator-meta"><h3>Sera Ellis</h3><span>Music & Culture</span></div>
-      <button class="follow-btn" type="button">Follow</button>
-    </article>
-  </div>
-</section>
+<section id="community" class="section community reveal"><div class="section-heading"><div class="eyebrow">LIVE COMMUNITY</div><h2>What do you think?<br><span>Join the conversation.</span></h2><p class="lead">Share your thoughts about HubCore Vibes with the community.</p></div><div class="community-shell glass-panel" id="communityApp"></div></section>
 
 <section id="founder" class="section founder reveal">
   <div class="profile-card">
