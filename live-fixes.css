@@ -1,0 +1,25 @@
+/* Live community + Founder image display fixes */
+#founder > div:first-child,
+#founder .founder-card,
+#founder .founder-image,
+#founder .founder-visual {
+  overflow: hidden;
+}
+
+#founder img[src*="founder"],
+#founder img[alt*="Founder"],
+#founder img[alt*="founder"],
+#founder img[alt*="Yutani"] {
+  width: min(280px, 68vw) !important;
+  max-width: 280px !important;
+  height: auto !important;
+  max-height: 360px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin-inline: auto !important;
+  transform: none !important;
+}
+
+#communityFeed .post-card { contain: layout paint; }
+#communityFeed .reaction-btn.active { transform: translateY(-1px); }
+#communityFeed .share-group.active { display: flex; flex-wrap: wrap; gap: 6px; }
