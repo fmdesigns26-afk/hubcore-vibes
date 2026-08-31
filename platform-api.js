@@ -21,8 +21,8 @@ window.HubCoreAPI = {
     if (!response.ok) throw new Error('Unable to sync comment');
     return response.json();
   },
-  async toggleReaction(postId, reaction) {
-    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'toggle_reaction',postId,reaction})});
+  async setReaction(postId, reaction, delta) {
+    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set_reaction',postId,reaction,delta})});
     if (!response.ok) throw new Error('Unable to sync reaction');
     return response.json();
   },
@@ -34,6 +34,5 @@ window.HubCoreAPI = {
   async subscribeToActivity() { return () => {}; }
 };
 
-/* Load the live community layer before the legacy browser-only handlers. */
-document.write('<link rel="stylesheet" href="live-fixes.css?v=20260831">');
-document.write('<script src="live-community.js?v=20260831"><\\/script>');
+document.write('<link rel="stylesheet" href="live-fixes.css?v=20260831b">');
+document.write('<script src="live-community.js?v=20260831b"><\\/script>');
