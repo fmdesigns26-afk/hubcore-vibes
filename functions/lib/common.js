@@ -84,10 +84,10 @@ export async function writeAnalytics(context, event, value = 1) {
 }
 
 export async function rateLimit(context, table, visitorId, max, minutes) {
-  const since = new Date(Date.now() - minutes * 60 * 1000).toISOString();
+  const sinceEpoch = Math.floor((Date.now() - minutes * 60 * 1000) / 1000);
   const row = await context.env.DB.prepare(
-    "SELECT COUNT(*) AS count FROM " + table + " WHERE visitor_id = ? AND created_at >= ?"
-  ).bind(visitorId, since).first();
+    "SELECT COUNT(*) AS count FROM " + table + " WHERE visitor_id = ? AND created_at >= datetime(?, 'unixepoch')"
+  ).bind(visitorId, sinceEpoch).first();
   return Number(row?.count || 0) < max;
 }
 
