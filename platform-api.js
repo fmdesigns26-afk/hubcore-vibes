@@ -1,17 +1,33 @@
-/* Client boundary for future Firebase, Supabase, D1, Workers, or WebSocket data. */
 window.HubCoreAPI = {
-  async getPlatformSnapshot() {
-    const response = await fetch('/api/platform', { cache: 'no-store' });
-    if (!response.ok) throw new Error('Platform API unavailable');
-    return response.json();
+  async request(path, options = {}) {
+    const response = await fetch(path, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    return data;
   },
-  async createPost(post) {
-    return { ...post, synced: false };
+  community() {
+    return this.request("/api/community");
   },
-  async toggleReaction(postId, reaction) {
-    return { postId, reaction, synced: false };
+  addComment(payload) {
+    return this.request("/api/community", { method: "POST", body: JSON.stringify(payload) });
   },
-  async subscribeToActivity() {
-    return () => {};
+  toggleLike(id) {
+    return this.request("/api/community/" + encodeURIComponent(id) + "/like", { method: "POST", body: "{}" });
+  },
+  share(id) {
+    return this.request("/api/community/" + encodeURIComponent(id) + "/share", { method: "POST", body: "{}" });
+  },
+  earlyAccess(payload) {
+    return this.request("/api/early-access", { method: "POST", body: JSON.stringify(payload) });
+  },
+  investorContact(payload) {
+    return this.request("/api/investor-contact", { method: "POST", body: JSON.stringify(payload) });
+  },
+  report(payload) {
+    return this.request("/api/report", { method: "POST", body: JSON.stringify(payload) });
   }
 };
