@@ -2,7 +2,9 @@
 #founder > div:first-child,
 #founder .founder-card,
 #founder .founder-image,
-#founder .founder-visual {
+#founder .founder-visual,
+#founder .profile-card,
+#founder .photo-frame {
   overflow: hidden;
 }
 
@@ -10,16 +12,29 @@
 #founder img[alt*="Founder"],
 #founder img[alt*="founder"],
 #founder img[alt*="Yutani"] {
-  width: min(280px, 68vw) !important;
-  max-width: 280px !important;
+  width: min(220px, 58vw) !important;
+  max-width: 220px !important;
   height: auto !important;
-  max-height: 360px !important;
+  max-height: 300px !important;
   object-fit: contain !important;
   object-position: center !important;
   margin-inline: auto !important;
   transform: none !important;
+  image-rendering: auto !important;
+}
+
+@media (min-width: 900px) {
+  #founder img[src*="founder"],
+  #founder img[alt*="Founder"],
+  #founder img[alt*="founder"],
+  #founder img[alt*="Yutani"] {
+    width: 230px !important;
+    max-width: 230px !important;
+    max-height: 310px !important;
+  }
 }
 
 #communityFeed .post-card { contain: layout paint; }
 #communityFeed .reaction-btn.active { transform: translateY(-1px); }
 #communityFeed .share-group.active { display: flex; flex-wrap: wrap; gap: 6px; }
+#communityFeed .comment-panel.active { display: block; }
