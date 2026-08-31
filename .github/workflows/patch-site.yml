@@ -37,9 +37,8 @@ jobs:
 
           old_img = 'src="assets/founder.jpg" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async"'
           new_img = 'src="assets/founder.jpg?v=20260831" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'assets/founder-yutani.svg?v=20260831\'"'
-          if old_img not in s:
-              raise SystemExit('Founder image markup not found')
-          s = s.replace(old_img, new_img, 1)
+          if old_img in s:
+              s = s.replace(old_img, new_img, 1)
 
           s = s.replace(
               'A HubCore Vibes game experience currently in development.',
@@ -58,6 +57,14 @@ jobs:
           )
 
           p.write_text(s, encoding='utf-8')
+
+          css = Path('styles.css')
+          cs = css.read_text(encoding='utf-8')
+          marker = '/* HubCore Founder image rendering fix */'
+          if marker not in cs:
+              cs += '''\n\n/* HubCore Founder image rendering fix */\n#founder img[src*="founder"] {\n  width: min(320px, 72vw) !important;\n  height: auto !important;\n  max-width: 100% !important;\n  max-height: 420px !important;\n  object-fit: contain !important;\n  object-position: center center !important;\n  transform: none !important;\n}\n\n@media (min-width: 900px) {\n  #founder img[src*="founder"] {\n    width: min(360px, 30vw) !important;\n    max-height: 460px !important;\n  }\n}\n'''
+              css.write_text(cs, encoding='utf-8')
+
           Path('_redirects').write_text('', encoding='utf-8')
           PY
 
@@ -65,7 +72,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html _redirects
+          git add index.html styles.css _redirects
           git diff --cached --quiet && exit 0
-          git commit -m 'Fix founder image fallback and refine Reality Switch messaging'
+          git commit -m 'Fix founder image rendering size and cache handling'
           git push
