@@ -60,4 +60,4 @@ sections.forEach(section=>navObserver.observe(section));
 document.getElementById("platformSearch")?.addEventListener("input",event=>{const q=event.target.value.trim().toLowerCase();document.querySelectorAll(".post-card").forEach(item=>item.hidden=Boolean(q&&!item.textContent.toLowerCase().includes(q)));});
 
 loadCommunity();
-setInterval(loadCommunity,30000);
+setInterval(loadCommunity,10000);
