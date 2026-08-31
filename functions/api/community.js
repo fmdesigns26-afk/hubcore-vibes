@@ -1,182 +1,65 @@
 function json(data, status = 200) {
-  return Response.json(data, {
-    status,
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      'Content-Type': 'application/json; charset=utf-8'
-    }
-  });
+  return Response.json(data, { status, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Content-Type': 'application/json; charset=utf-8' } });
 }
-
-function cleanText(value, max) {
-  return String(value ?? '').trim().slice(0, max);
-}
+function cleanText(value, max) { return String(value ?? '').trim().slice(0, max); }
 
 async function ensureSchema(db) {
   await db.batch([
-    db.prepare(`CREATE TABLE IF NOT EXISTS community_posts (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      handle TEXT NOT NULL,
-      avatar TEXT NOT NULL,
-      timestamp INTEGER NOT NULL,
-      text TEXT NOT NULL,
-      reactions_json TEXT NOT NULL DEFAULT '{"like":0,"hub":0,"fire":0,"inspire":0}'
-    )`),
-    db.prepare(`CREATE TABLE IF NOT EXISTS community_comments (
-      id TEXT PRIMARY KEY,
-      post_id TEXT NOT NULL,
-      author TEXT NOT NULL,
-      text TEXT NOT NULL,
-      timestamp INTEGER NOT NULL,
-      reply_to TEXT,
-      FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE
-    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS community_posts (id TEXT PRIMARY KEY,name TEXT NOT NULL,handle TEXT NOT NULL,avatar TEXT NOT NULL,timestamp INTEGER NOT NULL,text TEXT NOT NULL,reactions_json TEXT NOT NULL DEFAULT '{"like":0,"hub":0,"fire":0,"inspire":0}')`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS community_comments (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,author TEXT NOT NULL,text TEXT NOT NULL,timestamp INTEGER NOT NULL,reply_to TEXT,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_posts_timestamp ON community_posts(timestamp DESC)`),
-    db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id, timestamp ASC)`)
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id,timestamp ASC)`)
   ]);
 }
-
 async function seedIfEmpty(db) {
   const count = await db.prepare('SELECT COUNT(*) AS count FROM community_posts').first();
   if (Number(count?.count || 0) > 0) return;
-
-  const now = Date.now();
+  const now=Date.now();
   await db.batch([
-    db.prepare(`INSERT OR IGNORE INTO community_posts
-      (id,name,handle,avatar,timestamp,text,reactions_json)
-      VALUES (?,?,?,?,?,?,?)`).bind(
-      'seed-1','Nia Vega','@neonnomad','NV',now - 40*60*1000,
-      'The HubCore universe feels bigger every day. I love seeing creators, communities and ideas collide in one place.',
-      JSON.stringify({like:42,hub:29,fire:17,inspire:33})
-    ),
-    db.prepare(`INSERT OR IGNORE INTO community_posts
-      (id,name,handle,avatar,timestamp,text,reactions_json)
-      VALUES (?,?,?,?,?,?,?)`).bind(
-      'seed-2','Jalen North','@portalcraft','JN',now - 115*60*1000,
-      'Reality Switch has the kind of worldbuilding that makes you want to explore every path. The community energy is unreal.',
-      JSON.stringify({like:51,hub:45,fire:27,inspire:48})
-    ),
-    db.prepare(`INSERT OR IGNORE INTO community_comments
-      (id,post_id,author,text,timestamp,reply_to)
-      VALUES (?,?,?,?,?,?)`).bind(
-      'c-1','seed-1','Ari','This is the energy the platform needs.',now - 22*60*1000,null
-    ),
-    db.prepare(`INSERT OR IGNORE INTO community_comments
-      (id,post_id,author,text,timestamp,reply_to)
-      VALUES (?,?,?,?,?,?)`).bind(
-      'c-2','seed-2','You','The world-building is genuinely cinematic.',now - 7*60*1000,null
-    )
+    db.prepare(`INSERT OR IGNORE INTO community_posts (id,name,handle,avatar,timestamp,text,reactions_json) VALUES (?,?,?,?,?,?,?)`).bind('seed-1','Nia Vega','@neonnomad','NV',now-40*60*1000,'The HubCore universe feels bigger every day. I love seeing creators, communities and ideas collide in one place.',JSON.stringify({like:42,hub:29,fire:17,inspire:33})),
+    db.prepare(`INSERT OR IGNORE INTO community_posts (id,name,handle,avatar,timestamp,text,reactions_json) VALUES (?,?,?,?,?,?,?)`).bind('seed-2','Jalen North','@portalcraft','JN',now-115*60*1000,'Reality Switch has the kind of worldbuilding that makes you want to explore every path. The community energy is unreal.',JSON.stringify({like:51,hub:45,fire:27,inspire:48})),
+    db.prepare(`INSERT OR IGNORE INTO community_comments (id,post_id,author,text,timestamp,reply_to) VALUES (?,?,?,?,?,?)`).bind('c-1','seed-1','Ari','This is the energy the platform needs.',now-22*60*1000,null),
+    db.prepare(`INSERT OR IGNORE INTO community_comments (id,post_id,author,text,timestamp,reply_to) VALUES (?,?,?,?,?,?)`).bind('c-2','seed-2','You','The world-building is genuinely cinematic.',now-7*60*1000,null)
   ]);
 }
-
 async function readPosts(db) {
-  const posts = await db.prepare(`
-    SELECT id, name, handle, avatar, timestamp, text, reactions_json
-    FROM community_posts ORDER BY timestamp DESC LIMIT 100
-  `).all();
-
-  const ids = posts.results.map(p => p.id);
-  let comments = [];
-  if (ids.length) {
-    const placeholders = ids.map(() => '?').join(',');
-    const result = await db.prepare(`
-      SELECT id, post_id, author, text, timestamp, reply_to
-      FROM community_comments WHERE post_id IN (${placeholders})
-      ORDER BY timestamp ASC
-    `).bind(...ids).all();
-    comments = result.results;
-  }
-
-  const commentMap = new Map();
-  for (const comment of comments) {
-    if (!commentMap.has(comment.post_id)) commentMap.set(comment.post_id, []);
-    commentMap.get(comment.post_id).push({
-      id: comment.id,
-      author: comment.author,
-      text: comment.text,
-      timestamp: Number(comment.timestamp),
-      replyTo: comment.reply_to || null
-    });
-  }
-
-  return posts.results.map(post => ({
-    id: post.id,
-    name: post.name,
-    handle: post.handle,
-    avatar: post.avatar,
-    timestamp: Number(post.timestamp),
-    text: post.text,
-    reactions: JSON.parse(post.reactions_json || '{"like":0,"hub":0,"fire":0,"inspire":0}'),
-    userReaction: null,
-    comments: commentMap.get(post.id) || []
-  }));
+  const posts=await db.prepare(`SELECT id,name,handle,avatar,timestamp,text,reactions_json FROM community_posts ORDER BY timestamp DESC LIMIT 100`).all();
+  const ids=posts.results.map(p=>p.id); let comments=[];
+  if(ids.length){const ph=ids.map(()=>'?').join(','); const result=await db.prepare(`SELECT id,post_id,author,text,timestamp,reply_to FROM community_comments WHERE post_id IN (${ph}) ORDER BY timestamp ASC`).bind(...ids).all(); comments=result.results;}
+  const map=new Map();
+  for(const c of comments){if(!map.has(c.post_id))map.set(c.post_id,[]);map.get(c.post_id).push({id:c.id,author:c.author,text:c.text,timestamp:Number(c.timestamp),replyTo:c.reply_to||null});}
+  return posts.results.map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),userReaction:null,comments:map.get(p.id)||[]}));
 }
-
-export async function onRequestGet(context) {
-  const { env } = context;
-  if (!env?.DB) return json({ error: 'D1 database binding DB is not configured.' }, 503);
-  try {
-    await ensureSchema(env.DB);
-    await seedIfEmpty(env.DB);
-    return json({ posts: await readPosts(env.DB), serverTime: Date.now() });
-  } catch (error) {
-    return json({ error: 'Unable to load community data.' }, 500);
-  }
+export async function onRequestGet(context){
+  const {env}=context; if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);
+  try{await ensureSchema(env.DB);await seedIfEmpty(env.DB);return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){return json({error:'Unable to load community data.'},500);}
 }
-
-export async function onRequestPost(context) {
-  const { request, env } = context;
-  if (!env?.DB) return json({ error: 'D1 database binding DB is not configured.' }, 503);
-
-  try {
-    await ensureSchema(env.DB);
-    const body = await request.json();
-    const action = cleanText(body.action, 30);
-
-    if (action === 'create_post') {
-      const post = body.post || {};
-      const id = cleanText(post.id, 120);
-      const text = cleanText(post.text, 280);
-      if (!id || !text) return json({ error: 'Post id and text are required.' }, 400);
-      await env.DB.prepare(`INSERT OR IGNORE INTO community_posts
-        (id,name,handle,avatar,timestamp,text,reactions_json) VALUES (?,?,?,?,?,?,?)`)
-        .bind(id, cleanText(post.name,80)||'You', cleanText(post.handle,80)||'@visitor', cleanText(post.avatar,20)||'Y', Number(post.timestamp)||Date.now(), text,
-          JSON.stringify({like:0,hub:0,fire:0,inspire:0})).run();
-      return json({ ok:true, synced:true, id });
+export async function onRequestPost(context){
+  const {request,env}=context; if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);
+  try{
+    await ensureSchema(env.DB); const body=await request.json(); const action=cleanText(body.action,30);
+    if(action==='create_post'){
+      const p=body.post||{},id=cleanText(p.id,120),text=cleanText(p.text,280); if(!id||!text)return json({error:'Post id and text are required.'},400);
+      await env.DB.prepare(`INSERT OR IGNORE INTO community_posts (id,name,handle,avatar,timestamp,text,reactions_json) VALUES (?,?,?,?,?,?,?)`).bind(id,cleanText(p.name,80)||'You',cleanText(p.handle,80)||'@visitor',cleanText(p.avatar,20)||'Y',Number(p.timestamp)||Date.now(),text,JSON.stringify({like:0,hub:0,fire:0,inspire:0})).run();
+      return json({ok:true,synced:true,id});
     }
-
-    if (action === 'create_comment') {
-      const comment = body.comment || {};
-      const id = cleanText(comment.id,120), postId = cleanText(comment.postId,120), text = cleanText(comment.text,180);
-      if (!id || !postId || !text) return json({ error:'Comment id, post id and text are required.' },400);
-      await env.DB.prepare(`INSERT OR IGNORE INTO community_comments
-        (id,post_id,author,text,timestamp,reply_to) VALUES (?,?,?,?,?,?)`)
-        .bind(id,postId,cleanText(comment.author,80)||'You',text,Number(comment.timestamp)||Date.now(),cleanText(comment.replyTo,120)||null).run();
-      return json({ ok:true, synced:true, id });
+    if(action==='create_comment'){
+      const c=body.comment||{},id=cleanText(c.id,120),postId=cleanText(c.postId,120),text=cleanText(c.text,180); if(!id||!postId||!text)return json({error:'Comment id, post id and text are required.'},400);
+      await env.DB.prepare(`INSERT OR IGNORE INTO community_comments (id,post_id,author,text,timestamp,reply_to) VALUES (?,?,?,?,?,?)`).bind(id,postId,cleanText(c.author,80)||'You',text,Number(c.timestamp)||Date.now(),cleanText(c.replyTo,120)||null).run();
+      return json({ok:true,synced:true,id});
     }
-
-    if (action === 'toggle_reaction') {
-      const postId = cleanText(body.postId,120);
-      const reaction = cleanText(body.reaction,20);
-      if (!postId || !['like','hub','fire','inspire'].includes(reaction)) return json({error:'Invalid reaction.'},400);
-      const current = await env.DB.prepare('SELECT reactions_json FROM community_posts WHERE id=?').bind(postId).first();
-      if (!current) return json({error:'Post not found.'},404);
-      const reactions = JSON.parse(current.reactions_json || '{}');
-      reactions[reaction] = Math.max(0, Number(reactions[reaction] || 0) + 1);
+    if(action==='set_reaction'){
+      const postId=cleanText(body.postId,120),reaction=cleanText(body.reaction,20),delta=Math.max(-1,Math.min(1,Number(body.delta)||0));
+      if(!postId||!['like','hub','fire','inspire'].includes(reaction)||!delta)return json({error:'Invalid reaction.'},400);
+      const current=await env.DB.prepare('SELECT reactions_json FROM community_posts WHERE id=?').bind(postId).first(); if(!current)return json({error:'Post not found.'},404);
+      const reactions=JSON.parse(current.reactions_json||'{}'); reactions[reaction]=Math.max(0,Number(reactions[reaction]||0)+delta);
       await env.DB.prepare('UPDATE community_posts SET reactions_json=? WHERE id=?').bind(JSON.stringify(reactions),postId).run();
       return json({ok:true,synced:true,reactions});
     }
-
-    if (action === 'delete_comment') {
-      const id = cleanText(body.commentId,120);
-      if (!id) return json({error:'Comment id is required.'},400);
-      await env.DB.prepare('DELETE FROM community_comments WHERE id=?').bind(id).run();
-      return json({ok:true,synced:true});
+    if(action==='delete_comment'){
+      const id=cleanText(body.commentId,120); if(!id)return json({error:'Comment id is required.'},400);
+      await env.DB.prepare('DELETE FROM community_comments WHERE id=?').bind(id).run(); return json({ok:true,synced:true});
     }
-
-    return json({ error:'Unknown community action.' },400);
-  } catch (error) {
-    return json({ error:'Unable to save community data.' },500);
-  }
+    return json({error:'Unknown community action.'},400);
+  }catch(error){return json({error:'Unable to save community data.'},500);}
 }
