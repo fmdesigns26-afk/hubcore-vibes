@@ -12,27 +12,40 @@ window.HubCoreAPI = {
     return Array.isArray(data.posts) ? data.posts : [];
   },
   async createPost(post) {
-    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create_post',post})});
+    const response = await fetch('/api/community', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create_post', post })
+    });
     if (!response.ok) throw new Error('Unable to sync post');
     return response.json();
   },
   async createComment(postId, comment) {
-    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create_comment',comment:{...comment,postId}})});
+    const response = await fetch('/api/community', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create_comment', comment: { ...comment, postId } })
+    });
     if (!response.ok) throw new Error('Unable to sync comment');
     return response.json();
   },
   async setReaction(postId, reaction, delta) {
-    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set_reaction',postId,reaction,delta})});
+    const response = await fetch('/api/community', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'set_reaction', postId, reaction, delta })
+    });
     if (!response.ok) throw new Error('Unable to sync reaction');
     return response.json();
   },
   async deleteComment(commentId) {
-    const response = await fetch('/api/community', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete_comment',commentId})});
+    const response = await fetch('/api/community', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete_comment', commentId })
+    });
     if (!response.ok) throw new Error('Unable to delete comment');
     return response.json();
   },
   async subscribeToActivity() { return () => {}; }
 };
-
-document.write('<link rel="stylesheet" href="live-fixes.css?v=20260831b">');
-document.write('<script src="live-community.js?v=20260831b"><\\/script>');
