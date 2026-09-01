@@ -3,7 +3,7 @@ function clean(value,max){return String(value??'').trim().slice(0,max);}
 async function digest(value){const bytes=new TextEncoder().encode(value);const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');}
 async function verifyFounderToken(token,env){
   if(!token||!env?.FOUNDER_SESSION_SECRET)return false;
-  try{const decoded=atob(String(token)),parts=decoded.split(':');if(parts.length!==5||parts[0]!=='founder')return false;const issued=Number(parts[1]),expires=Number(parts[2]),sig=parts[3]+':'+parts[4];const payload=`founder:${issued}:${expires}`;const expected=await digest(`${payload}:${env.FOUNDER_SESSION_SECRET}`);return Date.now()<expires&&sig===expected;}catch{return false;}
+  try{const decoded=atob(String(token)),parts=decoded.split(':');if(parts.length!==4||parts[0]!=='founder')return false;const issued=Number(parts[1]),expires=Number(parts[2]),sig=parts[3];const payload=`founder:${issued}:${expires}`;const expected=await digest(`${payload}:${env.FOUNDER_SESSION_SECRET}`);return Date.now()<expires&&sig===expected;}catch{return false;}
 }
 async function ensure(db){
   await db.prepare(`CREATE TABLE IF NOT EXISTS community_comments (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,author TEXT NOT NULL,text TEXT NOT NULL,timestamp INTEGER NOT NULL,reply_to TEXT,is_founder INTEGER NOT NULL DEFAULT 0,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`).run();
