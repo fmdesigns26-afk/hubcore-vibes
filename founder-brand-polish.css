@@ -1,0 +1,89 @@
+/* Founder portrait + HubCore masthead presentation refresh */
+.nav .brand{
+  font-family:"Space Grotesk",Inter,sans-serif!important;
+  font-size:1.06rem!important;
+  font-weight:700!important;
+  letter-spacing:.01em!important;
+  gap:10px!important;
+  color:#fff!important;
+  text-shadow:0 0 18px rgba(166,111,255,.18);
+}
+.nav .brand b{color:#d5b6ff!important;font-weight:800!important;}
+.nav .brand-mark{
+  width:36px!important;
+  height:36px!important;
+  flex:0 0 36px!important;
+  border-radius:11px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(190,145,255,.42)!important;
+  background:rgba(143,77,255,.10)!important;
+  box-shadow:0 0 20px rgba(143,77,255,.24)!important;
+}
+.nav .brand-mark img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;}
+
+#founder.founder-launch{
+  grid-template-columns:minmax(350px,.9fr) minmax(0,1.35fr)!important;
+  gap:56px!important;
+  align-items:center!important;
+}
+#founder .portrait-only{
+  width:min(410px,34vw)!important;
+  max-width:410px!important;
+  margin:0 auto!important;
+  padding:0!important;
+}
+#founder .portrait-only img,
+#profileImage{
+  content:url("/assets/founder/founder-white-20260901.webp?v=founder-white-0901")!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:26px!important;
+  border:1px solid rgba(190,145,255,.44)!important;
+  background:#000!important;
+  box-shadow:0 24px 65px rgba(5,3,14,.46),0 0 34px rgba(143,77,255,.10)!important;
+}
+
+@media(max-width:980px){
+  .nav .brand{font-size:1rem!important;}
+  .nav .brand-mark{width:34px!important;height:34px!important;flex-basis:34px!important;}
+  #founder.founder-launch{grid-template-columns:minmax(300px,.85fr) minmax(0,1.15fr)!important;gap:38px!important;}
+  #founder .portrait-only{width:min(380px,39vw)!important;max-width:380px!important;}
+}
+
+@media(max-width:640px){
+  .nav .brand{
+    min-height:62px!important;
+    padding:10px 14px!important;
+    font-size:1.08rem!important;
+    gap:10px!important;
+  }
+  .nav .brand-mark{
+    width:38px!important;
+    height:38px!important;
+    flex-basis:38px!important;
+    border-radius:12px!important;
+  }
+  #founder.founder-launch{
+    grid-template-columns:1fr!important;
+    gap:30px!important;
+  }
+  #founder .portrait-only{
+    width:min(360px,94vw)!important;
+    max-width:360px!important;
+    margin:0 auto!important;
+  }
+  #founder .portrait-only img,
+  #profileImage{
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:auto!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    border-radius:24px!important;
+  }
+}
