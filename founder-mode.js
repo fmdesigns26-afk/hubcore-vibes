@@ -19,7 +19,7 @@
     if(document.getElementById('founderModeControl'))return;
     const wrap=document.createElement('div');wrap.id='founderModeControl';wrap.className='founder-mode-control';
     if(isFounder()){
-      wrap.innerHTML=`<div class="founder-mode-chip">${badge()} <strong>Yutani Pretorius</strong><button type="button" id="founderLogout">Sign out</button></div>`;
+      wrap.innerHTML=`<div class="founder-mode-chip">${badge()} <strong>Yutani Pretorius</strong><a class="founder-analytics-link" href="/analytics.html">Analytics</a><button type="button" id="founderLogout">Sign out</button></div>`;
     }else{
       wrap.innerHTML=`<button class="founder-login-link" type="button" id="founderLoginOpen" aria-label="Founder sign in">Founder sign in</button>`;
     }
