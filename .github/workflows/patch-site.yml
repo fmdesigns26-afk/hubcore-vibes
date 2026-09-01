@@ -1,73 +1,51 @@
-name: Patch HubCore Vibes site
+name: Validate HubCore Vibes site
 
 on:
   push:
-    paths:
-      - '.github/workflows/patch-site.yml'
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Patch site content
+
+      - name: Check required production files
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
+          test -f index.html
+          test -f platform-api.js
+          test -f live-community.js
+          test -f community-stability.js
+          test -f founder-mode.js
+          test -f early-access-live.js
+          test -f platform-health.js
+          test -f functions/api/community.js
+          test -f functions/api/platform.js
+          test -f functions/api/early-access.js
 
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-
-          s, _ = re.subn(
-              r'\n<section class="section creators reveal">.*?</section>\n\n(?=<section id="founder")',
-              '\n',
-              s,
-              count=1,
-              flags=re.S,
-          )
-
-          old_img = 'src="assets/founder.jpg" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async"'
-          new_img = 'src="assets/founder.jpg?v=20260831c" alt="Yutani Pretorius — Founder, Creator, Developer and Owner of HubCore Vibes" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'assets/founder-yutani.svg?v=20260831c\'"'
-          if old_img in s:
-              s = s.replace(old_img, new_img, 1)
-
-          # Load the live layer explicitly rather than via document.write.
-          if 'live-fixes.css?v=20260831c' not in s:
-              s = s.replace(
-                  '<link rel="stylesheet" href="styles.css">',
-                  '<link rel="stylesheet" href="styles.css?v=20260831c">\n<link rel="stylesheet" href="live-fixes.css?v=20260831c">',
-                  1,
-              )
-
-          old_scripts = '<script src="platform-api.js"></script><script src="script.js"></script>'
-          new_scripts = '<script src="platform-api.js?v=20260831c"></script><script src="live-community.js?v=20260831c"></script><script src="script.js?v=20260831c"></script>'
-          if old_scripts in s:
-              s = s.replace(old_scripts, new_scripts, 1)
-          else:
-              s = re.sub(
-                  r'<script src="platform-api\.js(?:\?[^\"]*)?"></script>\s*<script src="(?:live-community\.js(?:\?[^\"]*)?"></script>\s*)?<script src="script\.js(?:\?[^\"]*)?"></script>',
-                  new_scripts,
-                  s,
-                  count=1,
-              )
-
-          p.write_text(s, encoding='utf-8')
-
-          Path('_redirects').write_text('', encoding='utf-8')
-          PY
-
-      - name: Commit changes
+      - name: Validate browser JavaScript syntax
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html _redirects
-          git diff --cached --quiet && exit 0
-          git commit -m 'Load live community layer directly and bust browser cache'
-          git push
+          node --check platform-api.js
+          node --check live-community.js
+          node --check community-stability.js
+          node --check founder-mode.js
+          node --check early-access-live.js
+          node --check platform-health.js
+          node --check site-polish.js
+          node --check reality-live.js
+
+      - name: Validate Cloudflare Function syntax
+        run: |
+          for file in functions/api/*.js; do
+            cp "$file" /tmp/check.mjs
+            node --check /tmp/check.mjs
+          done
+
+      - name: Site validation complete
+        run: echo "HubCore Vibes production files passed validation."
