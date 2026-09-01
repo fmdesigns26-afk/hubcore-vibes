@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HubCore Vibes Founder Analytics</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#080611;color:#fff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#241236 0,#0c0814 42%,#080611 100%)}a{color:inherit}.wrap{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:28px 0 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none}.brand img{width:46px;height:46px;object-fit:contain}.brand strong{font-size:1.18rem}.muted{color:#b7aac9}.panel,.card{border:1px solid rgba(203,166,255,.22);background:rgba(18,12,28,.84);box-shadow:0 20px 60px rgba(0,0,0,.22);border-radius:22px}.panel{padding:22px}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.controls select,.controls button,input{min-height:44px;border-radius:12px;border:1px solid rgba(203,166,255,.28);background:#110b1b;color:#fff;padding:0 13px;font:inherit}.controls button,.login button{cursor:pointer;background:linear-gradient(135deg,#9d5cff,#6d3df0);border:none;font-weight:700}.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0}.summary .card{padding:22px}.big{font-size:2.15rem;font-weight:800;line-height:1}.label{display:block;color:#d8cae9;margin-top:8px}.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.metric{padding:18px;min-height:142px}.metric strong{display:block;font-size:2rem;margin:10px 0 5px}.metric small{color:#aa9bbd;display:block}.countries{margin-top:18px}.countries h2{margin-top:0}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px 10px;border-bottom:1px solid rgba(255,255,255,.08)}th{color:#cbb9dd;font-size:.83rem;text-transform:uppercase;letter-spacing:.06em}.status{min-height:22px;margin:12px 0;color:#c9b7dc}.login{max-width:520px;margin:12vh auto 0;padding:26px}.login h1{margin-top:0}.login form{display:grid;gap:12px}.login button{min-height:46px;border-radius:12px;color:#fff}.hidden{display:none!important}.note{margin-top:18px;padding:14px 16px;border-radius:14px;background:rgba(123,80,184,.14);color:#cfc0df;font-size:.9rem}.logout{background:transparent!important;border:1px solid rgba(255,255,255,.18)!important}.country-name{font-weight:650}.updated{font-size:.85rem;color:#a99ab9}@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.grid,.summary{grid-template-columns:1fr}.wrap{width:min(100% - 18px,1120px)}th:nth-child(3),td:nth-child(3){display:none}.metric{min-height:118px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="loginPanel" class="login panel hidden">
+    <h1>Founder Analytics</h1><p class="muted">Private HubCore Vibes analytics. Sign in with your Founder password.</p>
+    <form id="loginForm"><input id="password" type="password" autocomplete="current-password" placeholder="Founder password" required><button type="submit">Sign in</button><div id="loginStatus" class="status"></div></form>
+  </section>
+  <main id="dashboard" class="hidden">
+    <div class="top"><a class="brand" href="/"><img src="hubcore-logo.png" alt="HubCore Vibes"><div><strong>HubCore Vibes</strong><div class="muted">Founder Analytics</div></div></a><div class="controls"><select id="days"><option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select><button id="refresh" type="button">Refresh</button><button id="logout" class="logout" type="button">Sign out</button></div></div>
+    <div id="status" class="status"></div>
+    <section class="summary"><div class="card"><div class="big" id="uniqueVisitors">0</div><span class="label">Unique visitors</span></div><div class="card"><div class="big" id="pageViews">0</div><span class="label">Page views</span></div></section>
+    <section class="grid">
+      <div class="card metric"><span>Early Access</span><strong id="early_access">0</strong><small id="early_accessClicks">0 total clicks</small></div>
+      <div class="card metric"><span>Play Teaser</span><strong id="play_teaser">0</strong><small id="play_teaserClicks">0 total clicks</small></div>
+      <div class="card metric"><span>Reality Switch</span><strong id="reality_switch">0</strong><small id="reality_switchClicks">0 total clicks</small></div>
+      <div class="card metric"><span>Investors</span><strong id="investors">0</strong><small id="investorsClicks">0 total clicks</small></div>
+      <div class="card metric"><span>Enter Community</span><strong id="enter_community">0</strong><small id="enter_communityClicks">0 total clicks</small></div>
+    </section>
+    <section class="countries panel"><h2>Countries viewing HubCore Vibes</h2><p class="muted">Based on Cloudflare's country code for real page views. No IP addresses are stored by this dashboard.</p><div style="overflow:auto"><table><thead><tr><th>Country</th><th>Unique visitors</th><th>Page views</th></tr></thead><tbody id="countries"></tbody></table></div></section>
+    <div class="note">Tracking starts from the deployment of this feature. Earlier Cloudflare visits cannot be reconstructed into individual HubCore button-click totals.</div>
+    <p class="updated" id="updated"></p>
+  </main>
+</div>
+<script>
+(()=>{
+  const TOKEN_KEY='hubcore-founder-token-v1';
+  const loginPanel=document.getElementById('loginPanel'),dashboard=document.getElementById('dashboard'),status=document.getElementById('status'),loginStatus=document.getElementById('loginStatus');
+  const token=()=>{try{return localStorage.getItem(TOKEN_KEY)||''}catch{return ''}};
+  const setMode=()=>{const signed=Boolean(token());loginPanel.classList.toggle('hidden',signed);dashboard.classList.toggle('hidden',!signed);if(signed)load();};
+  const n=v=>Number(v||0).toLocaleString();
+  function countryName(code){if(!code||code==='XX')return 'Unknown';try{return new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(code)||code}catch{return code}}
+  async function load(){const days=document.getElementById('days').value;status.textContent='Loading live analytics…';try{const r=await fetch(`/api/analytics?days=${days}`,{headers:{Authorization:`Bearer ${token()}`},cache:'no-store'}),d=await r.json().catch(()=>({}));if(r.status===401){localStorage.removeItem(TOKEN_KEY);setMode();return}if(!r.ok)throw new Error(d.error||'Unable to load analytics.');document.getElementById('uniqueVisitors').textContent=n(d.summary?.uniqueVisitors);document.getElementById('pageViews').textContent=n(d.summary?.pageViews);['early_access','play_teaser','reality_switch','investors','enter_community'].forEach(k=>{const e=d.events?.[k]||{};document.getElementById(k).textContent=n(e.people);document.getElementById(k+'Clicks').textContent=`${n(e.clicks)} total clicks`;});const tbody=document.getElementById('countries');tbody.innerHTML='';if(!(d.countries||[]).length){tbody.innerHTML='<tr><td colspan="3" class="muted">No country data yet.</td></tr>'}else{for(const row of d.countries){const tr=document.createElement('tr'),name=document.createElement('td'),vis=document.createElement('td'),views=document.createElement('td');name.className='country-name';name.textContent=`${countryName(row.country)} (${row.country})`;vis.textContent=n(row.visitors);views.textContent=n(row.pageViews);tr.append(name,vis,views);tbody.appendChild(tr)}}document.getElementById('updated').textContent=`Last updated ${new Date(d.updatedAt).toLocaleString()}`;status.textContent='';}catch(err){status.textContent=err.message||'Unable to load analytics.'}}
+  document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const password=document.getElementById('password').value,button=e.currentTarget.querySelector('button');button.disabled=true;loginStatus.textContent='Signing in…';try{const r=await fetch('/api/founder-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Unable to sign in.');localStorage.setItem(TOKEN_KEY,d.token);document.getElementById('password').value='';loginStatus.textContent='';setMode();}catch(err){loginStatus.textContent=err.message||'Unable to sign in.'}finally{button.disabled=false}});
+  document.getElementById('refresh').addEventListener('click',load);document.getElementById('days').addEventListener('change',load);document.getElementById('logout').addEventListener('click',()=>{localStorage.removeItem(TOKEN_KEY);setMode()});
+  setMode();setInterval(()=>{if(token())load()},15000);
+})();
+</script>
+</body></html>
