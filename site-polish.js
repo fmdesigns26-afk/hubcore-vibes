@@ -1,5 +1,22 @@
 (() => {
   const API=window.HubCoreAPI;
+  const ANALYTICS_KEY='hubcore-analytics-visitor-v1';
+  const FOUNDER_KEY='hubcore-founder-token-v1';
+  function analyticsVisitorId(){let id;try{id=localStorage.getItem(ANALYTICS_KEY);if(!id){id=crypto.randomUUID?.()||`visitor-${Date.now()}-${Math.random().toString(16).slice(2)}`;localStorage.setItem(ANALYTICS_KEY,id);}}catch{id=`visitor-${Date.now()}-${Math.random().toString(16).slice(2)}`;}return id;}
+  function isFounderSession(){try{return Boolean(localStorage.getItem(FOUNDER_KEY));}catch{return false;}}
+  function recordAnalytics(eventName){if(isFounderSession())return;try{const body=JSON.stringify({eventName,visitorId:analyticsVisitorId(),path:location.pathname+location.hash});if(navigator.sendBeacon){navigator.sendBeacon('/api/analytics',new Blob([body],{type:'application/json'}));}else{fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});}}catch{}}
+  function bindAnalytics(){
+    recordAnalytics('page_view');
+    document.addEventListener('click',event=>{const target=event.target.closest('a,button');if(!target)return;const href=(target.getAttribute('href')||'').trim(),text=(target.textContent||'').trim().toLowerCase();let metric='';
+      if(target.id==='trailerPlay'||text==='play teaser'||text==='play preview')metric='play_teaser';
+      else if(text==='enter community')metric='enter_community';
+      else if(href==='#investors'||text==='investors')metric='investors';
+      else if(href==='#reality'||text==='reality switch')metric='reality_switch';
+      else if(href==='#contact'||text.includes('early access'))metric='early_access';
+      else if(href==='#community')metric='community_open';
+      if(metric)recordAnalytics(metric);
+    },{passive:true});
+  }
 
   async function updateReach(){
     if(!API?.getPlatformSnapshot)return;
@@ -8,7 +25,7 @@
 
   function bindInvestorForm(){
     const form=document.getElementById('investorForm');if(!form||form.dataset.bound)return;form.dataset.bound='1';
-    form.addEventListener('submit',async event=>{event.preventDefault();const status=document.getElementById('investorStatus'),button=form.querySelector('button[type="submit"]');if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form).entries());data.consent=Boolean(form.querySelector('[name="consent"]')?.checked);status.className='investor-status';status.textContent='Sending your private enquiry…';button.disabled=true;try{const response=await fetch('/api/investors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Unable to submit your enquiry.');form.reset();status.className='investor-status success';status.textContent=result.notificationSent?'Thank you. Your investor enquiry was received and sent privately to HubCore Vibes.':'Thank you. Your investor enquiry was received securely by HubCore Vibes.';}catch(error){status.className='investor-status error';status.textContent=error.message||'Unable to submit your enquiry right now.';}finally{button.disabled=false;}});
+    form.addEventListener('submit',async event=>{event.preventDefault();const status=document.getElementById('investorStatus'),button=form.querySelector('button[type="submit"]');if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form).entries());data.consent=Boolean(form.querySelector('[name="consent"]')?.checked);status.className='investor-status';status.textContent='Sending your private enquiry…';button.disabled=true;try{const response=await fetch('/api/investors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Unable to submit your enquiry.');form.reset();status.className='investor-status success';status.textContent=result.notificationSent?'Thank you. Your investor enquiry was received and sent privately to HubCore Vibes.':'Thank you. Your investor enquiry was received securely by HubCore Vibes.';recordAnalytics('investor_submit');}catch(error){status.className='investor-status error';status.textContent=error.message||'Unable to submit your enquiry right now.';}finally{button.disabled=false;}});
   }
 
   function installGeneralInquiry(){
@@ -31,6 +48,6 @@
   }
 
   function simplifyTrailer(){document.getElementById('trailerCard')?.remove();document.querySelector('#reality .trailer-vignette')?.remove();const play=document.getElementById('trailerPlay');if(play)play.textContent='Play preview';}
-  function init(){bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
+  function init(){bindAnalytics();bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
