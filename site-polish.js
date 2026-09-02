@@ -2,6 +2,7 @@
   const API=window.HubCoreAPI;
   const ANALYTICS_KEY='hubcore-analytics-visitor-v1';
   const FOUNDER_KEY='hubcore-founder-token-v1';
+  const HUBCORE_EMAIL='hubcorevibes@outlook.com';
   function analyticsVisitorId(){let id;try{id=localStorage.getItem(ANALYTICS_KEY);if(!id){id=crypto.randomUUID?.()||`visitor-${Date.now()}-${Math.random().toString(16).slice(2)}`;localStorage.setItem(ANALYTICS_KEY,id);}}catch{id=`visitor-${Date.now()}-${Math.random().toString(16).slice(2)}`;}return id;}
   function isFounderSession(){try{return Boolean(localStorage.getItem(FOUNDER_KEY));}catch{return false;}}
   function recordAnalytics(eventName){if(isFounderSession())return;try{const body=JSON.stringify({eventName,visitorId:analyticsVisitorId(),path:location.pathname+location.hash});if(navigator.sendBeacon){navigator.sendBeacon('/api/analytics',new Blob([body],{type:'application/json'}));}else{fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});}}catch{}}
@@ -23,6 +24,21 @@
     try{const data=await API.getPlatformSnapshot(),reach=data.communityReach||{},map={posts:reach.posts||0,comments:reach.comments||0,reactions:reach.reactions||0,contributors:reach.contributors||0};document.querySelectorAll('[data-live-reach]').forEach(el=>{el.textContent=Number(map[el.dataset.liveReach]||0).toLocaleString();});const r=document.querySelector('[data-metric="reactions"]'),c=document.querySelector('[data-metric="contributors"]');if(r)r.textContent=Number(map.reactions).toLocaleString();if(c)c.textContent=Number(map.contributors).toLocaleString();}catch(error){console.warn('Unable to refresh live reach figures',error);}
   }
 
+  function refineFounderStory(){
+    const founder=document.getElementById('founder');if(!founder)return;
+    const heading=[...founder.querySelectorAll('h3')].find(el=>el.textContent.trim().toLowerCase()==='why hubcore vibes?');
+    if(!heading)return;
+    const paragraphs=[];let node=heading.nextElementSibling;
+    while(node&&node.tagName==='P'){paragraphs.push(node);node=node.nextElementSibling;}
+    const copy=[
+      'I created HubCore Vibes because I believe the future of digital life should feel connected, effortless and human — not fragmented across endless apps, platforms and services. The vision is simple: instead of people constantly searching for the next place to connect, create, watch, listen, shop, travel, play or discover, those experiences should come together around them.',
+      'HubCore Vibes is my vision for a unified digital world where people, creators, communities, entertainment, ideas and opportunities can move naturally within one connected ecosystem. It is designed to feel intuitive, exciting and deeply personal — not like a collection of features, but like a digital environment that understands how people actually live, connect and grow.',
+      'What matters most to me is the impact it can have on people. If HubCore Vibes can make someone feel more connected, more inspired, more seen, or simply make their day a little better, then it has already become more than a platform to me. I want to build something that creates real value in people’s lives — and if I can help others thrive through what I create, then I will know I have achieved what I set out to do.'
+    ];
+    paragraphs.forEach(p=>p.remove());
+    copy.reverse().forEach(text=>{const p=document.createElement('p');p.textContent=text;heading.insertAdjacentElement('afterend',p);});
+  }
+
   function bindInvestorForm(){
     const form=document.getElementById('investorForm');if(!form||form.dataset.bound)return;form.dataset.bound='1';
     form.addEventListener('submit',async event=>{event.preventDefault();const status=document.getElementById('investorStatus'),button=form.querySelector('button[type="submit"]');if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form).entries());data.consent=Boolean(form.querySelector('[name="consent"]')?.checked);status.className='investor-status';status.textContent='Sending your private enquiry…';button.disabled=true;try{const response=await fetch('/api/investors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Unable to submit your enquiry.');form.reset();status.className='investor-status success';status.textContent=result.notificationSent?'Thank you. Your investor enquiry was received and sent privately to HubCore Vibes.':'Thank you. Your investor enquiry was received securely by HubCore Vibes.';recordAnalytics('investor_submit');}catch(error){status.className='investor-status error';status.textContent=error.message||'Unable to submit your enquiry right now.';}finally{button.disabled=false;}});
@@ -32,7 +48,7 @@
     const section=document.getElementById('contact');if(!section||document.getElementById('generalInquiryForm'))return;
     section.querySelectorAll('a[href^="mailto:"]').forEach(link=>link.remove());
     const wrap=document.createElement('div');wrap.className='general-inquiry glass-panel';
-    wrap.innerHTML=`<div class="eyebrow">PRIVATE HUBCORE VIBES ENQUIRY</div><h3>Send us a message</h3><form id="generalInquiryForm"><div class="field-row"><label>Your name<input name="name" maxlength="120" autocomplete="name" required></label><label>Your email<input name="email" type="email" maxlength="200" autocomplete="email" required></label></div><label>Subject<input name="subject" maxlength="160" placeholder="Early access, partnership, support…"></label><label>Your message<textarea name="message" rows="5" maxlength="2000" placeholder="Tell us what you would like to know…" required></textarea></label><button class="btn primary" type="submit">Send enquiry</button><div id="generalInquiryStatus" class="investor-status" role="status" aria-live="polite"></div></form>`;
+    wrap.innerHTML=`<div class="eyebrow">PRIVATE HUBCORE VIBES ENQUIRY</div><h3>Send us a message</h3><p class="hubcore-contact-line">Prefer email? <a href="mailto:${HUBCORE_EMAIL}">${HUBCORE_EMAIL}</a></p><form id="generalInquiryForm"><div class="field-row"><label>Your name<input name="name" maxlength="120" autocomplete="name" required></label><label>Your email<input name="email" type="email" maxlength="200" autocomplete="email" required></label></div><label>Subject<input name="subject" maxlength="160" placeholder="Early access, partnership, support…"></label><label>Your message<textarea name="message" rows="5" maxlength="2000" placeholder="Tell us what you would like to know…" required></textarea></label><button class="btn primary" type="submit">Send enquiry</button><div id="generalInquiryStatus" class="investor-status" role="status" aria-live="polite"></div></form>`;
     section.appendChild(wrap);
     const form=wrap.querySelector('form');form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;const status=document.getElementById('generalInquiryStatus'),button=form.querySelector('button');button.disabled=true;status.className='investor-status';status.textContent='Sending…';try{const data=Object.fromEntries(new FormData(form).entries()),response=await fetch('/api/inquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Unable to send enquiry.');form.reset();status.className='investor-status success';status.textContent=result.notificationSent?'Sent. HubCore Vibes has received your enquiry.':'Received securely. HubCore Vibes has your enquiry.';}catch(error){status.className='investor-status error';status.textContent=error.message||'Unable to send right now.';}finally{button.disabled=false;}});
   }
@@ -48,6 +64,6 @@
   }
 
   function simplifyTrailer(){document.getElementById('trailerCard')?.remove();document.querySelector('#reality .trailer-vignette')?.remove();const play=document.getElementById('trailerPlay');if(play)play.textContent='Play preview';}
-  function init(){bindAnalytics();bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
+  function init(){bindAnalytics();refineFounderStory();bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
