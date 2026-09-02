@@ -43,14 +43,14 @@ export async function onRequestPost(context){
   try{
     await ensureSchema(env.DB);await removeLegacyDemoData(env.DB);const body=await request.json();const action=cleanText(body.action,30);const founder=await verifyFounderToken(body.founderToken,env);
     if(action==='create_post'){
-      const p=body.post||{},id=cleanText(p.id,120),text=cleanText(p.text,280);let name=cleanText(p.name,80),handle=cleanText(p.handle,80);
+      const p=body.post||{},id=cleanText(p.id,120),text=cleanText(p.text,50000);let name=cleanText(p.name,80),handle=cleanText(p.handle,80);
       if(founder){name='Yutani Pretorius';handle='@yutanipretorius';}
       if(!id||!text||!name||!handle)return json({error:'Name, username and post text are required.'},400);
       await env.DB.prepare(`INSERT OR IGNORE INTO community_posts (id,name,handle,avatar,timestamp,text,reactions_json,is_founder) VALUES (?,?,?,?,?,?,?,?)`).bind(id,name,handle,founder?'YP':(cleanText(p.avatar,20)||name.slice(0,2).toUpperCase()),Number(p.timestamp)||Date.now(),text,JSON.stringify({like:0,hub:0,fire:0,inspire:0}),founder?1:0).run();
       return json({ok:true,synced:true,id,isFounder:founder});
     }
     if(action==='create_comment'){
-      const c=body.comment||{},id=cleanText(c.id,120),postId=cleanText(c.postId,120),text=cleanText(c.text,20000);let author=cleanText(c.author,120);
+      const c=body.comment||{},id=cleanText(c.id,120),postId=cleanText(c.postId,120),text=cleanText(c.text,50000);let author=cleanText(c.author,120);
       if(founder)author='Founder · Yutani Pretorius · @yutanipretorius';
       if(!id||!postId||!text||!author)return json({error:'Name, username and comment are required.'},400);
       await env.DB.prepare(`INSERT OR IGNORE INTO community_comments (id,post_id,author,text,timestamp,reply_to,is_founder) VALUES (?,?,?,?,?,?,?)`).bind(id,postId,author,text,Number(c.timestamp)||Date.now(),cleanText(c.replyTo,120)||null,founder?1:0).run();
