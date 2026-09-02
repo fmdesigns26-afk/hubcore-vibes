@@ -1,0 +1,60 @@
+name: Force community source update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/force-community-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove legacy community cap and load long-form UI directly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = '<textarea id="composerInput" maxlength="280" rows="3" placeholder="What do you like? What should we improve? What would you like to see next?"></textarea><div class="composer-bottom"><span id="composerCount">280</span><button class="btn primary" type="submit">Post</button></div>'
+          new = '<textarea id="composerInput" rows="5" data-longform="true" placeholder="Share your thoughts, ideas, feedback or story — write as much as you need…"></textarea><div class="composer-bottom"><span class="community-compose-note">Write freely · long posts welcome</span><button class="btn primary" type="submit">Post</button></div>'
+          if old in s:
+              s = s.replace(old, new, 1)
+          else:
+              s = s.replace(' maxlength="280"', '', 1)
+              s = s.replace('<span id="composerCount">280</span>', '<span class="community-compose-note">Write freely · long posts welcome</span>', 1)
+
+          css_tag = '<link rel="stylesheet" href="community-longform.css?v=20260902-source2">'
+          if 'community-longform.css?v=20260902-source2' not in s:
+              s = s.replace('</head>', css_tag + '\n</head>', 1)
+
+          js_tag = '<script src="community-longform.js?v=20260902-source2"></script>'
+          if 'community-longform.js?v=20260902-source2' not in s:
+              s = s.replace('</body>', js_tag + '\n</body>', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify cap is gone
+        run: |
+          ! grep -q 'composerInput" maxlength="280"' index.html
+          ! grep -q 'id="composerCount">280<' index.html
+          grep -q 'community-longform.js?v=20260902-source2' index.html
+
+      - name: Commit production HTML fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Remove community character cap from production HTML'
+          git push
