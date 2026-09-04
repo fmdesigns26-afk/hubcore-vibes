@@ -25,6 +25,8 @@ jobs:
           test -f founder-mode.js
           test -f early-access-live.js
           test -f platform-health.js
+          test -f analytics-live.js
+          test -f functions/api/analytics.js
           test -f functions/api/community.js
           test -f functions/api/platform.js
           test -f functions/api/early-access.js
@@ -37,6 +39,7 @@ jobs:
           node --check founder-mode.js
           node --check early-access-live.js
           node --check platform-health.js
+          node --check analytics-live.js
           node --check site-polish.js
           node --check reality-live.js
 
