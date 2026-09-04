@@ -30,9 +30,15 @@ export async function onRequestPost({request,env}){
 }
 export async function onRequestGet({request,env}){
   if(!env?.DB)return json({error:'Analytics database is not connected.'},503);
-  const token=founderTokenFromRequest(request);if(!await verifyFounderToken(token,env))return json({error:'Founder access required.'},401);
+  const url=new URL(request.url),isPublic=url.searchParams.get('public')==='1';
   try{
-    await ensure(env.DB);const days=daysFromUrl(request),since=Date.now()-days*86400000;
+    await ensure(env.DB);
+    if(isPublic){
+      const summary=await env.DB.prepare(`SELECT COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors,MIN(timestamp) AS tracking_since FROM analytics_events WHERE event_name='page_view'`).first();
+      return json({ok:true,summary:{uniqueVisitors:Number(summary?.unique_visitors||0),pageViews:Number(summary?.page_views||0)},trackingSince:Number(summary?.tracking_since||Date.now()),updatedAt:Date.now()});
+    }
+    const token=founderTokenFromRequest(request);if(!await verifyFounderToken(token,env))return json({error:'Founder access required.'},401);
+    const days=daysFromUrl(request),since=Date.now()-days*86400000;
     const [events,countries,summary]=await Promise.all([
       env.DB.prepare(`SELECT event_name,COUNT(*) AS clicks,COUNT(DISTINCT visitor_id) AS people FROM analytics_events WHERE timestamp>=? GROUP BY event_name ORDER BY people DESC`).bind(since).all(),
       env.DB.prepare(`SELECT country,COUNT(*) AS events,COUNT(DISTINCT visitor_id) AS visitors FROM analytics_events WHERE timestamp>=? AND event_name='page_view' GROUP BY country ORDER BY visitors DESC,events DESC`).bind(since).all(),
