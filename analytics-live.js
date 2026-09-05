@@ -43,7 +43,7 @@
       });
       const since = document.querySelector('[data-site-tracking-since]');
       if (since && data.trackingSince) {
-        since.textContent = `Live HubCore tracking since ${new Date(data.trackingSince).toLocaleDateString()}. Cloudflare dashboard totals may differ.`;
+        since.textContent = `Live HubCore tracking since ${new Date(data.trackingSince).toLocaleDateString()}.`;
       }
     } catch (error) {
       console.warn('HubCore visit totals unavailable:', error);
