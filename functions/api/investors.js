@@ -32,8 +32,10 @@ async function ensureTable(db) {
   `).run();
 }
 
+const NOTIFICATION_EMAIL = 'hubcore-vibes@outlook.com';
+
 async function sendNotification(env, lead) {
-  if (!env?.RESEND_API_KEY || !env?.INVESTOR_NOTIFICATION_EMAIL || !env?.INVESTOR_FROM_EMAIL) {
+  if (!env?.RESEND_API_KEY || !env?.INVESTOR_FROM_EMAIL) {
     return { sent: false, reason: 'notification_not_configured' };
   }
 
@@ -45,7 +47,7 @@ async function sendNotification(env, lead) {
     },
     body: JSON.stringify({
       from: env.INVESTOR_FROM_EMAIL,
-      to: [env.INVESTOR_NOTIFICATION_EMAIL],
+      to: [NOTIFICATION_EMAIL],
       subject: `New HubCore Vibes investor enquiry — ${lead.name}`,
       text: [
         'A new investor enquiry was submitted on HubCore Vibes.',
