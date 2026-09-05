@@ -1,9 +1,10 @@
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'no-store, no-cache, must-revalidate','Content-Type':'application/json; charset=utf-8'}});}
 const clean=(v,max)=>String(v??'').trim().slice(0,max);
+const NOTIFICATION_EMAIL='hubcore-vibes@outlook.com';
 async function ensure(db){await db.prepare(`CREATE TABLE IF NOT EXISTS general_enquiries (id TEXT PRIMARY KEY,created_at INTEGER NOT NULL,name TEXT NOT NULL,email TEXT NOT NULL,subject TEXT,message TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'new')`).run();}
 async function notify(env,lead){
   const apiKey=env?.RESEND_API_KEY;
-  const to=env?.CONTACT_NOTIFICATION_EMAIL||env?.INVESTOR_NOTIFICATION_EMAIL;
+  const to=NOTIFICATION_EMAIL;
   const from=env?.CONTACT_FROM_EMAIL||env?.INVESTOR_FROM_EMAIL;
   if(!apiKey||!to||!from)return false;
   const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({from,to:[to],reply_to:lead.email,subject:`HubCore Vibes enquiry — ${lead.subject||lead.name}`,text:[`Name: ${lead.name}`,`Email: ${lead.email}`,`Subject: ${lead.subject||'-'}`,'',lead.message].join('\n')})});
