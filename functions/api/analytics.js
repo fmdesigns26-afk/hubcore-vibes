@@ -13,7 +13,7 @@ async function ensure(db){
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_analytics_visitor_time ON analytics_events(visitor_id,timestamp DESC)`)
   ]);
 }
-const ALLOWED=new Set(['page_view','early_access','play_teaser','reality_switch','investors','enter_community','community_open','early_access_submit','investor_submit']);
+const ALLOWED=new Set(['page_view','early_access','play_teaser','trailer_like','trailer_share','reality_switch','investors','enter_community','community_open','early_access_submit','investor_submit']);
 function founderTokenFromRequest(request){const auth=request.headers.get('Authorization')||'';return auth.startsWith('Bearer ')?auth.slice(7).trim():'';}
 function daysFromUrl(request){const raw=Number(new URL(request.url).searchParams.get('days')||30);return [1,7,30,90].includes(raw)?raw:30;}
 export async function onRequestPost({request,env}){
@@ -34,8 +34,8 @@ export async function onRequestGet({request,env}){
   try{
     await ensure(env.DB);
     if(isPublic){
-      const summary=await env.DB.prepare(`SELECT COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors,MIN(timestamp) AS tracking_since FROM analytics_events WHERE event_name='page_view'`).first();
-      return json({ok:true,summary:{uniqueVisitors:Number(summary?.unique_visitors||0),pageViews:Number(summary?.page_views||0)},trackingSince:Number(summary?.tracking_since||Date.now()),updatedAt:Date.now()});
+      const [summary,engagement]=await Promise.all([env.DB.prepare(`SELECT COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors,MIN(timestamp) AS tracking_since FROM analytics_events WHERE event_name='page_view'`).first(),env.DB.prepare(`SELECT COUNT(DISTINCT CASE WHEN event_name='trailer_like' THEN visitor_id END) AS trailer_likes,SUM(CASE WHEN event_name='trailer_share' THEN 1 ELSE 0 END) AS trailer_shares FROM analytics_events WHERE event_name IN ('trailer_like','trailer_share')`).first()]);
+      return json({ok:true,summary:{uniqueVisitors:Number(summary?.unique_visitors||0),pageViews:Number(summary?.page_views||0)},engagement:{trailerLikes:Number(engagement?.trailer_likes||0),trailerShares:Number(engagement?.trailer_shares||0)},trackingSince:Number(summary?.tracking_since||Date.now()),updatedAt:Date.now()});
     }
     const token=founderTokenFromRequest(request);if(!await verifyFounderToken(token,env))return json({error:'Founder access required.'},401);
     const days=daysFromUrl(request),since=Date.now()-days*86400000;
