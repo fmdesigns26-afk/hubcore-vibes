@@ -13,7 +13,7 @@ async function ensure(db){
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_analytics_visitor_time ON analytics_events(visitor_id,timestamp DESC)`)
   ]);
 }
-const ALLOWED=new Set(['page_view','early_access','play_teaser','trailer_like','trailer_share','reality_switch','investors','enter_community','community_open','early_access_submit','investor_submit']);
+const ALLOWED=new Set(['page_view','early_access','play_teaser','trailer_like','trailer_share','reality_switch','investors','enter_community','community_open','early_access_submit','investor_submit','site_share']);
 function founderTokenFromRequest(request){const auth=request.headers.get('Authorization')||'';return auth.startsWith('Bearer ')?auth.slice(7).trim():'';}
 function daysFromUrl(request){const raw=Number(new URL(request.url).searchParams.get('days')||30);return [1,7,30,90].includes(raw)?raw:30;}
 export async function onRequestPost({request,env}){
