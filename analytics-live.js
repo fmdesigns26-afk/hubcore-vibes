@@ -129,7 +129,7 @@
     ['#trailerPlay', 'play_teaser'],
     ['a[href="#reality"]', 'reality_switch'],
     ['a[href="#investors"]', 'investors'],
-    ['a[href="#community"]', 'enter_community']
+    ['a[href="#community"]', 'enter_community'],\n    ['#shareHubcore', 'site_share']
   ];
 
   document.addEventListener('click', event => {
@@ -151,7 +151,7 @@
 
   async function init() {
     paintLikedState();
-    await record('page_view');
+    const params = new URLSearchParams(location.search);\n    const isAutomatedCheck = params.has('monitor') || params.has('review');\n    if (!isAutomatedCheck) await record('page_view');
     await refreshPublicTotals();
     setInterval(refreshPublicTotals, 30000);
   }
