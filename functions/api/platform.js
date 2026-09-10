@@ -9,10 +9,6 @@ async function ensure(db){await db.batch([
 export async function onRequest(context){
   const {env}=context;if(!env?.DB)return response(emptyState('database-not-connected'),503);
   try{
-    await ensure(env.DB);
-    await env.DB.prepare(`DELETE FROM community_comments WHERE id IN ('c-1','c-2') OR post_id IN ('seed-1','seed-2')`).run().catch(()=>{});
-    await env.DB.prepare(`DELETE FROM community_shares WHERE post_id IN ('seed-1','seed-2')`).run().catch(()=>{});
-    await env.DB.prepare(`DELETE FROM community_posts WHERE id IN ('seed-1','seed-2')`).run().catch(()=>{});
     const now=Date.now(),startOfDay=new Date();startOfDay.setHours(0,0,0,0);const start=startOfDay.getTime();
     const [postCount,commentCount,shareCount,postsToday,activeConversations,recentPosts,reactionRows,contributorRows,approvedMembers,newMembers]=await Promise.all([
       env.DB.prepare('SELECT COUNT(*) AS count FROM community_posts').first(),
