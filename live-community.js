@@ -61,8 +61,8 @@
   async function refresh(){try{posts=await API().getCommunityPosts();render();}catch(error){console.warn('HubCore live community unavailable:',error);const feed=document.getElementById('communityFeed');if(feed&&!posts.length)feed.innerHTML='<div class="empty-state">Community comments could not load. Please refresh the page and try again.</div>';}}
   async function refreshMetrics(){
     try{
-      const r=await fetch('/api/platform',{cache:'no-store'}),data=await r.json();
-      if(!r.ok)throw new Error(data.error||'Metrics unavailable');
+      const data=await API().getPlatformSnapshot();
+      if(data.live!==true)throw new Error(data.error||'Metrics unavailable');
       const metrics=data.metrics||{},reach=data.communityReach||{};
       const values={posts:metrics.posts||reach.posts||0,messages:metrics.messages||reach.comments||0,reactions:reach.reactions||0,contributors:reach.contributors||0};
       for(const [key,value] of Object.entries(values)){const el=document.querySelector(`[data-metric="${key}"]`);if(el)el.textContent=Number(value||0).toLocaleString();}
@@ -95,6 +95,6 @@
     if(composer){event.preventDefault();event.stopImmediatePropagation();const input=document.getElementById('composerInput'),founder=founderSession();let name='Yutani Pretorius',handle='@yutanipretorius';if(!founder){name=composer.querySelector('[name="displayName"]')?.value.trim();handle=normalizeHandle(composer.querySelector('[name="username"]')?.value);if(!name||!handle)return;saveProfile(name,handle);}const text=input?.value.trim();if(!text)return;const post={id:`post-${crypto.randomUUID?.()||Date.now()}`,name,handle,avatar:initials(name),timestamp:Date.now(),text,reactions:{like:0,hub:0,fire:0,inspire:0},comments:[],shares:0};await API().createPost(post);input.value='';const count=document.getElementById('composerCount');if(count)count.textContent='280';await refresh();return;}
   },true);
 
-  function init(){try{localStorage.removeItem('hubcore-community-posts-v1');}catch{}updateCommunityIntro();ensureComposerIdentity();refresh();refreshMetrics();setInterval(()=>{if(!document.activeElement?.closest?.('#community'))refresh();},4000);setInterval(refreshMetrics,4000);}
+  function init(){try{localStorage.removeItem('hubcore-community-posts-v1');}catch{}updateCommunityIntro();ensureComposerIdentity();refresh();refreshMetrics();setInterval(()=>{if(document.visibilityState==='visible'&&!document.activeElement?.closest?.('#community'))refresh();},30000);setInterval(()=>{if(document.visibilityState==='visible')refreshMetrics();},30000);}
   if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
