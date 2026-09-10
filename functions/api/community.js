@@ -37,11 +37,11 @@ async function readPosts(db){
   for(const s of shares){shareMap.set(s.post_id,Number(s.count||0));}
   return posts.results.map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,isFounder:Boolean(p.is_founder),reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),comments:commentMap.get(p.id)||[],shares:shareMap.get(p.id)||0}));
 }
-export async function onRequestGet(context){const {env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);try{await ensureSchema(env.DB);await removeLegacyDemoData(env.DB);return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){return json({error:'Unable to load community data.'},500);}}
+export async function onRequestGet(context){const {env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);try{return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){return json({error:'Unable to load community data.'},500);}}
 export async function onRequestPost(context){
   const {request,env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);
   try{
-    await ensureSchema(env.DB);await removeLegacyDemoData(env.DB);const body=await request.json();const action=cleanText(body.action,30);const founder=await verifyFounderToken(body.founderToken,env);
+    const body=await request.json();const action=cleanText(body.action,30);const founder=await verifyFounderToken(body.founderToken,env);
     if(action==='create_post'){
       const p=body.post||{},id=cleanText(p.id,120),text=cleanText(p.text,50000);let name=cleanText(p.name,80),handle=cleanText(p.handle,80);
       if(founder){name='Yutani Pretorius';handle='@yutanipretorius';}
