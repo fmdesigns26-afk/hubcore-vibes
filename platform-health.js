@@ -6,10 +6,7 @@
   async function sync(){
     const note=document.querySelector('.live-reach-note');
     try{
-      const r=await fetch('/api/platform',{cache:'no-store',headers:{Accept:'application/json'}});
-      const type=r.headers.get('content-type')||'';
-      if(!r.ok||!type.includes('application/json'))throw new Error('Platform API unavailable');
-      const d=await r.json();
+      const d=await window.HubCoreAPI.getPlatformSnapshot();
       if(d.live!==true)throw new Error('Platform database unavailable');
       const reach=d.communityReach||{};
       render(reach);saveCached(reach);
@@ -20,6 +17,6 @@
       console.warn('HubCore Community health check failed:',error);
     }
   }
-  function init(){const cached=readCached();if(cached)render(cached);sync();setInterval(sync,5000);}
+  function init(){const cached=readCached();if(cached)render(cached);sync();setInterval(()=>{if(document.visibilityState==='visible')sync();},30000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
