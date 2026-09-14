@@ -43,3 +43,29 @@ CREATE INDEX IF NOT EXISTS idx_community_shares_post_id ON community_shares(post
 CREATE INDEX IF NOT EXISTS idx_analytics_event_time ON analytics_events(event_name, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_country_time ON analytics_events(country, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_analytics_visitor_time ON analytics_events(visitor_id, timestamp DESC);
+
+
+CREATE TABLE IF NOT EXISTS reels (
+  id TEXT PRIMARY KEY,
+  author TEXT NOT NULL,
+  handle TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  caption TEXT NOT NULL DEFAULT '',
+  video_url TEXT NOT NULL DEFAULT '',
+  theme TEXT NOT NULL DEFAULT 'creator',
+  featured INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  likes INTEGER NOT NULL DEFAULT 0,
+  shares INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS reel_comments (
+  id TEXT PRIMARY KEY,
+  reel_id TEXT NOT NULL,
+  author TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (reel_id) REFERENCES reels(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_reels_created ON reels(featured DESC,created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reel_comments ON reel_comments(reel_id,created_at ASC);
