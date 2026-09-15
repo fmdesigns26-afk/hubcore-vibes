@@ -24,12 +24,18 @@ jobs:
           test -f community-stability.js
           test -f founder-mode.js
           test -f early-access-live.js
+          test -f real-vibes.js
+          test -f mobile-nav.js
           test -f platform-health.js
           test -f analytics-live.js
+          test -f functions/_lib/hubcore-email.js
           test -f functions/api/analytics.js
           test -f functions/api/community.js
           test -f functions/api/platform.js
           test -f functions/api/early-access.js
+          test -f functions/api/account.js
+          test -f functions/api/reels.js
+          test -f functions/api/upload.js
 
       - name: Validate browser JavaScript syntax
         run: |
@@ -38,6 +44,8 @@ jobs:
           node --check community-stability.js
           node --check founder-mode.js
           node --check early-access-live.js
+          node --check real-vibes.js
+          node --check mobile-nav.js
           node --check platform-health.js
           node --check analytics-live.js
           node --check site-polish.js
@@ -49,6 +57,8 @@ jobs:
             cp "$file" /tmp/check.mjs
             node --check /tmp/check.mjs
           done
+          cp functions/_lib/hubcore-email.js /tmp/check.mjs
+          node --check /tmp/check.mjs
 
       - name: Site validation complete
         run: echo "HubCore Vibes production files passed validation."
