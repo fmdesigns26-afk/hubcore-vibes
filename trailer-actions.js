@@ -14,33 +14,23 @@
     if(!reality||reality.dataset.realityRedesign==='1')return;
     reality.dataset.realityRedesign='1';
     reality.innerHTML=`
-      <div class="rs-hero">
-        <div class="eyebrow">GAME DEVELOPMENT · HUBCORE VIBES</div>
-        <div class="rs-logo" aria-label="Reality Switch">
-          <span class="rs-logo-reality">REALITY</span>
-          <span class="rs-logo-switch">SWITCH</span>
-        </div>
-        <div class="rs-meta"><span class="status">IN DEVELOPMENT</span><span>Created &amp; developed by Yutani Pretorius</span></div>
-        <p class="rs-tagline">One Choice. Infinite Realities.</p>
-      </div>
-
       <div class="rs-trailer-grid" aria-label="Reality Switch trailers">
         <article class="rs-trailer-card">
-          <div class="rs-trailer-head"><span>TRAILER 1</span><strong>Original Cinematic Reveal</strong></div>
+          <div class="rs-trailer-head"><span>TRAILER 1</span></div>
           <video controls playsinline preload="metadata" src="${TRAILER_ONE}" aria-label="Reality Switch Trailer 1"></video>
         </article>
         <article class="rs-trailer-card rs-trailer-new">
-          <div class="rs-trailer-head"><span>TRAILER 2 · LATEST</span><strong>The next choice begins here</strong></div>
+          <div class="rs-trailer-head"><span>TRAILER 2 · LATEST</span></div>
           <video controls playsinline preload="metadata" src="${TRAILER_TWO}" aria-label="Reality Switch Trailer 2"></video>
         </article>
       </div>
 
       <section class="rs-choice-panel" aria-labelledby="rsChoiceTitle">
         <div class="rs-choice-copy">
-          <div class="eyebrow">YOUR CHOICE</div>
           <h3 id="rsChoiceTitle">They thought it was something else.<br>But it's data. <span aria-hidden="true">👀</span></h3>
           <p>They have two choices:</p>
           <strong>Call Heisenberg and drop it off or open the drive first?</strong>
+          <p class="rs-choice-question">Whats your choice?</p>
           <p class="rs-choice-cta">Comment your choice.</p>
         </div>
         <div class="rs-choice-buttons" role="group" aria-label="Choose what happens next">
@@ -50,12 +40,12 @@
       </section>
 
       <section class="rs-comments" aria-label="Reality Switch comments">
-        <div class="rs-comments-head"><div><div class="eyebrow">COMMUNITY DECISION</div><h3>What would you do?</h3></div><span id="rsCommentCount">0 comments</span></div>
+        <div class="rs-comments-head"><div><div class="eyebrow">COMMENTS</div><h3>Community choices</h3></div><span id="rsCommentCount">0 comments</span></div>
         <div id="rsCommentsList" class="rs-comments-list"><p class="rs-comment-empty">Loading comments…</p></div>
         <form id="rsCommentForm" class="rs-comment-form">
           <div id="rsCommentIdentity" class="rs-comment-identity"></div>
           <input id="rsChoiceValue" type="hidden" name="choice" value="">
-          <textarea name="text" rows="4" maxlength="1600" placeholder="Comment your choice and tell us why…" required></textarea>
+          <textarea name="text" rows="4" maxlength="1600" placeholder="Comment your choice…" required></textarea>
           <div class="rs-comment-actions"><span id="rsCommentStatus" role="status" aria-live="polite"></span><button class="btn primary" type="submit">Post comment</button></div>
         </form>
       </section>`;
@@ -66,7 +56,7 @@
   function paintIdentity(){
     const box=document.getElementById('rsCommentIdentity'),u=member();
     if(!box)return;
-    box.innerHTML=u?`Commenting as <strong>${esc(u.name)}</strong> <span>@${esc(u.username)}</span>`:`<strong>Sign up or log in to comment.</strong> Your choice can still be viewed by everyone.`;
+    box.innerHTML=u?`Commenting as <strong>${esc(u.name)}</strong> <span>@${esc(u.username)}</span>`:`<strong>Sign up or log in to comment.</strong> Everyone can still read the choices.`;
   }
 
   function selectChoice(button){
@@ -110,5 +100,6 @@
     window.addEventListener('hubcore-auth',paintIdentity);
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
+  build();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
 })();
