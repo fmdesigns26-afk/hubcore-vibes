@@ -8,13 +8,8 @@ async function ensure(db){
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_reels_created ON reels(featured DESC,created_at DESC)`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_reel_comments ON reel_comments(reel_id,created_at ASC)`)
   ]);
-  const now=Date.now();
-  const seeds=[
-    ['trend-pov','Reel Vibes','@reelvibes','POV: your digital life finally connects','A fast, relatable “before vs after” story inspired by today’s authentic POV format.','', 'pov',1,now-3000],
-    ['hubcore-tour','HubCore Vibes','@hubcorevibes','HubCore Vibes in 15 seconds','Community, creators, entertainment, gaming and everyday digital life—one connected universe.','', 'hubcore',1,now-2000],
-    ['trend-food','Reel Vibes','@reelvibes','The reveal everyone waits for','A satisfying food reveal format: quick setup, close detail, clean payoff.','', 'food',1,now-1000]
-  ];
-  await db.batch(seeds.map(s=>db.prepare(`INSERT OR IGNORE INTO reels (id,author,handle,title,caption,video_url,theme,featured,created_at) VALUES (?,?,?,?,?,?,?,?,?)`).bind(...s)));
+  await db.prepare(`DELETE FROM reel_comments WHERE reel_id IN ('trend-pov','hubcore-tour','trend-food')`).run();
+  await db.prepare(`DELETE FROM reels WHERE id IN ('trend-pov','hubcore-tour','trend-food')`).run();
 }
 async function read(db){
   const reels=await db.prepare(`SELECT id,author,handle,title,caption,video_url,theme,featured,created_at,likes,shares FROM reels ORDER BY featured DESC,created_at DESC LIMIT 60`).all();
@@ -28,7 +23,7 @@ export async function onRequestPost({request,env}){if(!env?.DB)return json({erro
   if(action==='create_reel'){
     const author=clean(b.author,80),handle=clean(b.handle,80),title=clean(b.title,120),caption=clean(b.caption,800),videoUrl=clean(b.videoUrl,1200);
     if(!author||!title||!videoUrl)return json({error:'Creator name, title and video link are required.'},400);
-    let u;try{u=new URL(videoUrl);if(!['https:'].includes(u.protocol))throw 0;}catch{return json({error:'Use a secure https video link.'},400);}
+    if(!videoUrl.startsWith('/api/media/')){let u;try{u=new URL(videoUrl);if(u.protocol!=='https:')throw 0;}catch{return json({error:'Use an uploaded video or secure https video link.'},400);}}
     const id=uid('reel');await env.DB.prepare(`INSERT INTO reels (id,author,handle,title,caption,video_url,theme,featured,created_at) VALUES (?,?,?,?,?,?,?,?,?)`).bind(id,author,handle,title,caption,videoUrl,'creator',0,Date.now()).run();return json({ok:true,id});
   }
   if(action==='comment'){
