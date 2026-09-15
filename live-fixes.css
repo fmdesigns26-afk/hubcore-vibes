@@ -38,3 +38,36 @@
 #communityFeed .reaction-btn.active { transform: translateY(-1px); }
 #communityFeed .share-group.active { display: flex; flex-wrap: wrap; gap: 6px; }
 #communityFeed .comment-panel.active { display: block; }
+
+#communityFeed .post-edit-form {
+  margin: 12px 0 14px;
+  padding: 12px;
+  border: 1px solid rgba(191,154,255,.28);
+  border-radius: 16px;
+  background: rgba(16,10,30,.72);
+}
+#communityFeed .post-edit-form[hidden] { display: none !important; }
+#communityFeed .post-edit-form textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid rgba(191,154,255,.32);
+  border-radius: 12px;
+  background: rgba(8,6,17,.92);
+  color: #fff;
+  font: inherit;
+  line-height: 1.55;
+  box-sizing: border-box;
+}
+#communityFeed .post-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+#communityFeed .post-edit-status {
+  color: #cdbcea;
+  font-size: .86rem;
+}
