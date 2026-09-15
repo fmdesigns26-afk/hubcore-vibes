@@ -34,12 +34,14 @@ async function ensureTable(db) {
 
 const NOTIFICATION_EMAIL = 'hubcore-vibes@outlook.com';
 
+function emailReady(env) {
+  return Boolean(env?.RESEND_API_KEY && (env?.INVESTOR_FROM_EMAIL || env?.CONTACT_FROM_EMAIL));
+}
+
 async function sendNotification(env, lead) {
   const apiKey = env?.RESEND_API_KEY;
   const from = env?.INVESTOR_FROM_EMAIL || env?.CONTACT_FROM_EMAIL;
-  if (!apiKey || !from) {
-    return { sent: false, reason: 'notification_not_configured' };
-  }
+  if (!apiKey || !from) return { sent: false, reason: 'notification_not_configured' };
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -69,7 +71,10 @@ async function sendNotification(env, lead) {
     })
   });
 
-  if (!response.ok) throw new Error('Investor notification email failed');
+  if (!response.ok) {
+    console.error('Investor notification failed', response.status, await response.text().catch(() => ''));
+    return { sent: false, reason: 'email_failed' };
+  }
   return { sent: true };
 }
 
@@ -112,11 +117,14 @@ export async function onRequestPost(context) {
       lead.interestArea || null, lead.message || null, lead.consent ? 1 : 0
     ).run();
 
-    let notification = { sent: false };
-    try { notification = await sendNotification(env, lead); } catch (error) { notification = { sent: false, reason: 'email_failed' }; }
+    const notificationQueued = emailReady(env);
+    if (notificationQueued) {
+      context.waitUntil(sendNotification(env, lead).catch(error => console.error('Investor notification error', error)));
+    }
 
-    return json({ ok: true, id, notificationSent: Boolean(notification.sent) }, 201);
+    return json({ ok: true, id, notificationQueued }, 201);
   } catch (error) {
+    console.error('Investor enquiry error', error);
     return json({ error: 'Unable to submit investor enquiry right now.' }, 500);
   }
 }
