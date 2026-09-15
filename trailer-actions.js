@@ -127,3 +127,59 @@
     init();
   }
 })();
+
+(() => {
+  const trailerTwoSrc = 'assets/videos/reality-switch-trailer-two-release-20260915.mp4';
+
+  async function assetExists() {
+    try {
+      const response = await fetch(trailerTwoSrc, {method: 'HEAD', cache: 'no-store'});
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  function buildTrailerTwo() {
+    if (document.getElementById('realityTrailerTwo')) return;
+    const reality = document.getElementById('reality');
+    if (!reality) return;
+
+    const originalSection = reality.querySelector('.video-section.trailer-section');
+    if (originalSection && !originalSection.querySelector('[data-trailer-one-label]')) {
+      const heading = originalSection.querySelector('.eyebrow');
+      if (heading) {
+        heading.textContent = 'TRAILER 1 · ORIGINAL CINEMATIC REVEAL';
+        heading.setAttribute('data-trailer-one-label', 'true');
+      }
+    }
+
+    const section = document.createElement('div');
+    section.className = 'video-section trailer-section reality-trailer-two-release';
+    section.id = 'realityTrailerTwo';
+    section.style.marginTop = '32px';
+    section.innerHTML = `
+      <div>
+        <div class="eyebrow">NEW TRAILER JUST RELEASED · TRAILER 2</div>
+        <h3>Reality Switch — Trailer 2</h3>
+        <p>A new look at <strong>Reality Switch</strong>, currently in development. Watch the latest trailer and see where the choices, consequences and realities are heading next.</p>
+      </div>
+      <div class="trailer-player" aria-label="Reality Switch Trailer 2">
+        <video controls preload="metadata" playsinline src="${trailerTwoSrc}" style="width:100%;height:100%;object-fit:contain;background:#05030a"></video>
+      </div>`;
+
+    const engagement = reality.querySelector('.trailer-engagement');
+    if (engagement) engagement.insertAdjacentElement('beforebegin', section);
+    else reality.appendChild(section);
+  }
+
+  async function initTrailerTwo() {
+    if (await assetExists()) buildTrailerTwo();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTrailerTwo, {once: true});
+  } else {
+    initTrailerTwo();
+  }
+})();
