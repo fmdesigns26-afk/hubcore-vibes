@@ -1,6 +1,6 @@
 (() => {
   const TRAILER_ONE='assets/videos/reality-switch-trailer-01.mp4';
-  const TRAILER_TWO='assets/videos/reality-switch-trailer-02-new.mp4';
+  const TRAILER_TWO='assets/videos/reality-switch-trailer-02-fullscreen.mp4';
   const STORYBOARD='assets/reality/reality-storyboard.png';
   const TOKEN='hubcore_member_token';
   const USER='hubcore_member';
