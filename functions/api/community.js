@@ -9,6 +9,7 @@ async function ensureSchema(db){await db.batch([
   db.prepare(`CREATE TABLE IF NOT EXISTS community_posts (id TEXT PRIMARY KEY,name TEXT NOT NULL,handle TEXT NOT NULL,avatar TEXT NOT NULL,timestamp INTEGER NOT NULL,text TEXT NOT NULL,reactions_json TEXT NOT NULL DEFAULT '{"like":0,"hub":0,"fire":0,"inspire":0}',is_founder INTEGER NOT NULL DEFAULT 0)`),
   db.prepare(`CREATE TABLE IF NOT EXISTS community_comments (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,author TEXT NOT NULL,text TEXT NOT NULL,timestamp INTEGER NOT NULL,reply_to TEXT,is_founder INTEGER NOT NULL DEFAULT 0,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`),
   db.prepare(`CREATE TABLE IF NOT EXISTS community_shares (id TEXT PRIMARY KEY,post_id TEXT NOT NULL,timestamp INTEGER NOT NULL,channel TEXT,FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE)`),
+  db.prepare(`CREATE TABLE IF NOT EXISTS hubcore_migrations (key TEXT PRIMARY KEY,applied_at INTEGER NOT NULL)`),
   db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_posts_timestamp ON community_posts(timestamp DESC)`),
   db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_comments_post_id ON community_comments(post_id,timestamp ASC)`),
   db.prepare(`CREATE INDEX IF NOT EXISTS idx_community_shares_post_id ON community_shares(post_id,timestamp DESC)`)
@@ -21,9 +22,17 @@ async function removeLegacyDemoData(db){
   await db.prepare(`DELETE FROM community_shares WHERE post_id IN ('seed-1','seed-2')`).run();
   await db.prepare(`DELETE FROM community_posts WHERE id IN ('seed-1','seed-2')`).run();
 }
+async function runOneTimeCleanup(db){
+  const key='remove-mayson-comments-20260915';
+  const done=await db.prepare('SELECT key FROM hubcore_migrations WHERE key=?').bind(key).first();
+  if(done)return;
+  await db.prepare(`DELETE FROM community_comments WHERE lower(author) LIKE '%mayson%'`).run();
+  await db.prepare('INSERT OR IGNORE INTO hubcore_migrations(key,applied_at) VALUES(?,?)').bind(key,Date.now()).run();
+}
+async function prepare(db){await ensureSchema(db);await removeLegacyDemoData(db);await runOneTimeCleanup(db);}
 async function readPosts(db){
   const posts=await db.prepare(`SELECT id,name,handle,avatar,timestamp,text,reactions_json,is_founder FROM community_posts ORDER BY timestamp DESC LIMIT 100`).all();
-  const ids=posts.results.map(p=>p.id);let comments=[],shares=[];
+  const ids=(posts.results||[]).map(p=>p.id);let comments=[],shares=[];
   if(ids.length){
     const ph=ids.map(()=>'?').join(',');
     const [commentResult,shareResult]=await Promise.all([
@@ -35,12 +44,13 @@ async function readPosts(db){
   const commentMap=new Map(),shareMap=new Map();
   for(const c of comments){if(!commentMap.has(c.post_id))commentMap.set(c.post_id,[]);commentMap.get(c.post_id).push({id:c.id,author:c.author,text:c.text,timestamp:Number(c.timestamp),replyTo:c.reply_to||null,isFounder:Boolean(c.is_founder)});}
   for(const s of shares){shareMap.set(s.post_id,Number(s.count||0));}
-  return posts.results.map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,isFounder:Boolean(p.is_founder),reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),comments:commentMap.get(p.id)||[],shares:shareMap.get(p.id)||0}));
+  return (posts.results||[]).map(p=>({id:p.id,name:p.name,handle:p.handle,avatar:p.avatar,timestamp:Number(p.timestamp),text:p.text,isFounder:Boolean(p.is_founder),reactions:JSON.parse(p.reactions_json||'{"like":0,"hub":0,"fire":0,"inspire":0}'),comments:commentMap.get(p.id)||[],shares:shareMap.get(p.id)||0}));
 }
-export async function onRequestGet(context){const {env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);try{return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){return json({error:'Unable to load community data.'},500);}}
+export async function onRequestGet(context){const {env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);try{await prepare(env.DB);return json({posts:await readPosts(env.DB),serverTime:Date.now()});}catch(error){console.error('Community GET error',error);return json({error:'Unable to load community data.'},500);}}
 export async function onRequestPost(context){
   const {request,env}=context;if(!env?.DB)return json({error:'D1 database binding DB is not configured.'},503);
   try{
+    await prepare(env.DB);
     const body=await request.json();const action=cleanText(body.action,30);const founder=await verifyFounderToken(body.founderToken,env);
     if(action==='create_post'){
       const p=body.post||{},id=cleanText(p.id,120),text=cleanText(p.text,50000);let name=cleanText(p.name,80),handle=cleanText(p.handle,80);
@@ -71,7 +81,11 @@ export async function onRequestPost(context){
       const total=await env.DB.prepare('SELECT COUNT(*) AS count FROM community_shares WHERE post_id=?').bind(postId).first();
       return json({ok:true,synced:true,shares:Number(total?.count||0)});
     }
-    if(action==='delete_comment'){const id=cleanText(body.commentId,120);if(!id)return json({error:'Comment id is required.'},400);await env.DB.prepare('DELETE FROM community_comments WHERE id=?').bind(id).run();return json({ok:true,synced:true});}
+    if(action==='delete_comment'){
+      if(!founder)return json({error:'Founder access required.'},403);
+      const id=cleanText(body.commentId,120);if(!id)return json({error:'Comment id is required.'},400);
+      await env.DB.prepare('DELETE FROM community_comments WHERE id=?').bind(id).run();return json({ok:true,synced:true});
+    }
     return json({error:'Unknown community action.'},400);
-  }catch(error){return json({error:'Unable to save community data.'},500);}
+  }catch(error){console.error('Community POST error',error);return json({error:'Unable to save community data.'},500);}
 }
