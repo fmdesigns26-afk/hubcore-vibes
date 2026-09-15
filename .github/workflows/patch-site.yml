@@ -26,6 +26,10 @@ jobs:
           test -f early-access-live.js
           test -f real-vibes.js
           test -f mobile-nav.js
+          test -f trailer-actions.js
+          test -f trailer-engagement.css
+          test -f assets/videos/reality-switch-trailer-01.mp4
+          test -f assets/videos/reality-switch-trailer-02-new.mp4
           test -f platform-health.js
           test -f analytics-live.js
           test -f functions/_lib/hubcore-email.js
@@ -36,6 +40,7 @@ jobs:
           test -f functions/api/account.js
           test -f functions/api/reels.js
           test -f functions/api/upload.js
+          test -f functions/api/reality-comments.js
 
       - name: Validate browser JavaScript syntax
         run: |
@@ -46,6 +51,7 @@ jobs:
           node --check early-access-live.js
           node --check real-vibes.js
           node --check mobile-nav.js
+          node --check trailer-actions.js
           node --check platform-health.js
           node --check analytics-live.js
           node --check site-polish.js
