@@ -1,3 +1,5 @@
+import { hubcoreEmailStatus, sendHubCoreEmail } from '../_lib/hubcore-email.js';
+
 function json(data, status = 200) {
   return Response.json(data, {
     status,
@@ -32,50 +34,26 @@ async function ensureTable(db) {
   `).run();
 }
 
-const NOTIFICATION_EMAIL = 'hubcore-vibes@outlook.com';
-
-function emailReady(env) {
-  return Boolean(env?.RESEND_API_KEY && (env?.INVESTOR_FROM_EMAIL || env?.CONTACT_FROM_EMAIL));
-}
-
 async function sendNotification(env, lead) {
-  const apiKey = env?.RESEND_API_KEY;
-  const from = env?.INVESTOR_FROM_EMAIL || env?.CONTACT_FROM_EMAIL;
-  if (!apiKey || !from) return { sent: false, reason: 'notification_not_configured' };
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from,
-      to: [NOTIFICATION_EMAIL],
-      reply_to: lead.email,
-      subject: `New HubCore Vibes investor enquiry — ${lead.name}`,
-      text: [
-        'A new investor enquiry was submitted on HubCore Vibes.',
-        '',
-        `Name: ${lead.name}`,
-        `Company: ${lead.company || '-'}`,
-        `Email: ${lead.email}`,
-        `Phone: ${lead.phone || '-'}`,
-        `Country: ${lead.country || '-'}`,
-        `Investor type: ${lead.investorType || '-'}`,
-        `Investment range: ${lead.investmentRange || '-'}`,
-        `Interest area: ${lead.interestArea || '-'}`,
-        '',
-        `Message: ${lead.message || '-'}`
-      ].join('\n')
-    })
+  return sendHubCoreEmail(env, {
+    purpose: 'investor',
+    replyTo: lead.email,
+    subject: `New HubCore Vibes investor enquiry — ${lead.name}`,
+    text: [
+      'A new investor enquiry was submitted on HubCore Vibes.',
+      '',
+      `Name: ${lead.name}`,
+      `Company: ${lead.company || '-'}`,
+      `Email: ${lead.email}`,
+      `Phone: ${lead.phone || '-'}`,
+      `Country: ${lead.country || '-'}`,
+      `Investor type: ${lead.investorType || '-'}`,
+      `Investment range: ${lead.investmentRange || '-'}`,
+      `Interest area: ${lead.interestArea || '-'}`,
+      '',
+      `Message: ${lead.message || '-'}`
+    ].join('\n')
   });
-
-  if (!response.ok) {
-    console.error('Investor notification failed', response.status, await response.text().catch(() => ''));
-    return { sent: false, reason: 'email_failed' };
-  }
-  return { sent: true };
 }
 
 export async function onRequestPost(context) {
@@ -117,7 +95,7 @@ export async function onRequestPost(context) {
       lead.interestArea || null, lead.message || null, lead.consent ? 1 : 0
     ).run();
 
-    const notificationQueued = emailReady(env);
+    const notificationQueued = hubcoreEmailStatus(env).emailReady;
     if (notificationQueued) {
       context.waitUntil(sendNotification(env, lead).catch(error => console.error('Investor notification error', error)));
     }
