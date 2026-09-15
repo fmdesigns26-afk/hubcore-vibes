@@ -1,9 +1,10 @@
+import { hubcoreEmailStatus, sendHubCoreEmail } from '../_lib/hubcore-email.js';
+
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8'}})}
 const clean=(v,n=300)=>String(v??'').trim().slice(0,n);
 const enc=new TextEncoder();
 const TERMS_VERSION='2026-09-15';
 const PASSWORD_ITERATIONS=10000;
-const NOTIFICATION_EMAIL='hubcore-vibes@outlook.com';
 async function hex(buf){return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('')}
 async function hashPassword(password,salt,iterations=PASSWORD_ITERATIONS){const key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:Number(iterations)||PASSWORD_ITERATIONS,hash:'SHA-256'},key,256))}
 async function digest(v){return hex(await crypto.subtle.digest('SHA-256',enc.encode(v)))}
@@ -27,8 +28,14 @@ async function ensure(db){
  await addColumn(db,'hubcore_sessions','created_at',`INTEGER NOT NULL DEFAULT 0`);
  await db.prepare(`CREATE INDEX IF NOT EXISTS idx_hubcore_sessions_user ON hubcore_sessions(user_id,expires_at DESC)`).run();
 }
-function emailReady(env){return Boolean(env?.RESEND_API_KEY&&(env?.CONTACT_FROM_EMAIL||env?.INVESTOR_FROM_EMAIL))}
-async function notify(env,u){const apiKey=env?.RESEND_API_KEY,from=env?.CONTACT_FROM_EMAIL||env?.INVESTOR_FROM_EMAIL;if(!apiKey||!from)return false;const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({from,to:[NOTIFICATION_EMAIL],reply_to:u.email,subject:`NEW HUBCORE SIGNUP — @${u.username}`,text:`New HubCore Vibes member\n\nName: ${u.name}\nUsername: @${u.username}\nEmail: ${u.email}`})});if(!r.ok){console.error('HubCore signup notification failed',r.status,await r.text().catch(()=>''));return false}return true}
+async function notify(env,u){
+ return sendHubCoreEmail(env,{
+  purpose:'contact',
+  replyTo:u.email,
+  subject:`NEW HUBCORE SIGNUP — @${u.username}`,
+  text:`New HubCore Vibes member\n\nName: ${u.name}\nUsername: @${u.username}\nEmail: ${u.email}`
+ });
+}
 async function sessionUser(request,db){const auth=request.headers.get('Authorization')||'';if(!auth.startsWith('Bearer '))return null;const th=await digest(auth.slice(7));return db.prepare(`SELECT u.id,u.name,u.email,u.username,u.profile_photo,u.terms_accepted_at,u.terms_version FROM hubcore_sessions s JOIN hubcore_users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?`).bind(th,Date.now()).first()}
 export async function onRequestGet({request,env}){if(!env?.DB)return json({error:'Account database unavailable.'},503);try{await ensure(env.DB);const u=await sessionUser(request,env.DB);return u?json({user:{id:u.id,name:u.name,email:u.email,username:u.username,profilePhoto:u.profile_photo||'',termsAcceptedAt:Number(u.terms_accepted_at||0),termsVersion:u.terms_version||''}}):json({error:'Please log in.'},401)}catch(e){console.error('HubCore account GET error',e);return json({error:'Unable to load account.'},500)}}
 export async function onRequestPost(context){const {request,env}=context;if(!env?.DB)return json({error:'Account database unavailable.'},503);let stage='starting';try{stage='preparing database';await ensure(env.DB);stage='reading request';const b=await request.json(),action=clean(b.action,20);
@@ -43,7 +50,7 @@ export async function onRequestPost(context){const {request,env}=context;if(!env
   stage='securing password';const id=crypto.randomUUID(),salt=crypto.randomUUID(),ph=await hashPassword(password,salt,PASSWORD_ITERATIONS),now=Date.now();
   stage='saving account';await env.DB.prepare(`INSERT INTO hubcore_users(id,created_at,name,email,username,password_hash,password_salt,password_iterations,profile_photo,terms_accepted_at,terms_version) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id,now,name,email,username,ph,salt,PASSWORD_ITERATIONS,'',now,TERMS_VERSION).run();
   stage='creating session';const token=crypto.randomUUID()+crypto.randomUUID(),th=await digest(token);await env.DB.prepare('INSERT INTO hubcore_sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').bind(th,id,now+2592000000,now).run();
-  const notificationQueued=emailReady(env);if(notificationQueued)context.waitUntil(notify(env,{name,email,username}).catch(e=>console.error('HubCore signup notification error',e)));
+  const notificationQueued=hubcoreEmailStatus(env).emailReady;if(notificationQueued)context.waitUntil(notify(env,{name,email,username}).catch(e=>console.error('HubCore signup notification error',e)));
   return json({ok:true,token,user:{id,name,email,username,profilePhoto:'',termsAcceptedAt:now,termsVersion:TERMS_VERSION},notificationQueued},201)
  }
  if(action==='login'){stage='finding account';const login=clean(b.login,200).replace(/^@/,'').toLowerCase(),password=String(b.password||''),u=await env.DB.prepare('SELECT * FROM hubcore_users WHERE lower(email)=? OR lower(username)=?').bind(login,login).first();if(!u||!u.password_salt||!u.password_hash)return json({error:'Incorrect email, username or password.'},401);stage='checking password';const iterations=Number(u.password_iterations||150000);if(await hashPassword(password,u.password_salt,iterations)!==u.password_hash)return json({error:'Incorrect email, username or password.'},401);stage='creating session';const token=crypto.randomUUID()+crypto.randomUUID(),th=await digest(token),now=Date.now();await env.DB.prepare('INSERT INTO hubcore_sessions(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)').bind(th,u.id,now+2592000000,now).run();return json({ok:true,token,user:{id:u.id,name:u.name,email:u.email,username:u.username,profilePhoto:u.profile_photo||'',termsAcceptedAt:Number(u.terms_accepted_at||0),termsVersion:u.terms_version||''}})}
