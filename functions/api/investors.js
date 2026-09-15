@@ -35,19 +35,22 @@ async function ensureTable(db) {
 const NOTIFICATION_EMAIL = 'hubcore-vibes@outlook.com';
 
 async function sendNotification(env, lead) {
-  if (!env?.RESEND_API_KEY || !env?.INVESTOR_FROM_EMAIL) {
+  const apiKey = env?.RESEND_API_KEY;
+  const from = env?.INVESTOR_FROM_EMAIL || env?.CONTACT_FROM_EMAIL;
+  if (!apiKey || !from) {
     return { sent: false, reason: 'notification_not_configured' };
   }
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: env.INVESTOR_FROM_EMAIL,
+      from,
       to: [NOTIFICATION_EMAIL],
+      reply_to: lead.email,
       subject: `New HubCore Vibes investor enquiry — ${lead.name}`,
       text: [
         'A new investor enquiry was submitted on HubCore Vibes.',
