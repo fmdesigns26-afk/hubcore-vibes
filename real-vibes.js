@@ -1,5 +1,5 @@
 (()=>{const section=document.getElementById('reel-vibes');if(!section)return;const TOKEN='hubcore_member_token',USER='hubcore_member';
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const member=()=>{try{return JSON.parse(localStorage.getItem(USER)||'null')}catch{return null}},token=()=>localStorage.getItem(TOKEN)||'';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));const member=()=>{try{return JSON.parse(localStorage.getItem(USER)||'null')}catch{return null}},token=()=>localStorage.getItem(TOKEN)||'';
 const api=async body=>{const r=await fetch('/api/reels',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Something went wrong.');return d};
 section.innerHTML=`<div class="real-vibes-head"><div><div class="eyebrow">SHORT VIDEO · HUBCORE VIBES</div><h2>Meet <span>Reel Vibes.</span></h2></div><p>Be the first creator to upload a Reel Vibe. Members can post shorts, comment, like and share.</p></div><div class="reel-composer glass-panel"><button class="btn primary" id="openReelComposer" type="button">⬆ Upload your short</button><span>MP4, WebM or MOV · Maximum 100 MB · You must own or have permission to post it.</span><form id="reelForm" hidden><div class="reel-fields"><input name="title" maxlength="120" required placeholder="Reel title"><input name="file" type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" required></div><textarea name="caption" maxlength="800" rows="3" placeholder="Write a caption…"></textarea><div class="reel-form-actions"><button class="btn primary" type="submit">Publish Reel Vibe</button><button class="btn ghost" id="cancelReel" type="button">Cancel</button><span id="reelFormStatus" role="status"></span></div></form></div><div class="real-vibes-shell"><div class="real-vibes-track" id="realVibesTrack" aria-label="Reel Vibes feed"></div><div class="real-vibes-nav"><button id="realVibesPrev" type="button" aria-label="Previous Reel">←</button><button id="realVibesNext" type="button" aria-label="Next Reel">→</button></div></div><p class="real-vibes-note">The spotlight is empty. Who will post the first Reel Vibe?</p>`;
 const track=section.querySelector('#realVibesTrack'),status=section.querySelector('#reelFormStatus');
@@ -8,3 +8,22 @@ async function load(){try{const r=await fetch('/api/reels',{cache:'no-store'}),d
 function open(){if(!member()){location.hash='contact';setTimeout(()=>document.querySelector('#memberSignup input')?.focus(),400);return}section.querySelector('#reelForm').hidden=false;section.querySelector('#reelForm input')?.focus()}
 function bind(){track.querySelector('[data-empty-upload]')?.addEventListener('click',open);track.querySelectorAll('.real-vibe-card').forEach(card=>{const id=card.dataset.id,like=card.querySelector('[data-like]'),share=card.querySelector('[data-share]'),comments=card.querySelector('[data-comments]'),panel=card.querySelector('.reel-comments');like.onclick=async()=>{if(localStorage.getItem('hubcore-liked-'+id))return;try{const d=await api({action:'like',reelId:id});like.querySelector('b').textContent=d.total;localStorage.setItem('hubcore-liked-'+id,'1')}catch{}};comments.onclick=()=>panel.hidden=!panel.hidden;share.onclick=async()=>{const url=location.origin+location.pathname+'#reel-'+id;try{if(navigator.share)await navigator.share({title:'Reel Vibes',url});else await navigator.clipboard.writeText(url);const d=await api({action:'share',reelId:id});share.querySelector('b').textContent=d.total}catch{}};card.querySelector('[data-comment-form]').onsubmit=async e=>{e.preventDefault();const u=member();if(!u){location.hash='contact';return}const fd=new FormData(e.currentTarget);try{await api({action:'comment',reelId:id,author:'@'+u.username,text:fd.get('text')});await load()}catch(err){alert(err.message)}}})}
 const form=section.querySelector('#reelForm');section.querySelector('#openReelComposer').onclick=open;section.querySelector('#cancelReel').onclick=()=>form.hidden=true;form.onsubmit=async e=>{e.preventDefault();const u=member(),file=new FormData(form).get('file');if(!u){location.hash='contact';return}status.textContent='Uploading your reel…';const button=form.querySelector('button[type="submit"]');button.disabled=true;try{const up=new FormData();up.append('kind','reel');up.append('file',file);const rr=await fetch('/api/upload',{method:'POST',headers:{Authorization:'Bearer '+token()},body:up}),ud=await rr.json().catch(()=>({}));if(!rr.ok)throw new Error(ud.error||'Upload failed.');const fd=new FormData(form);await api({action:'create_reel',author:u.name,handle:'@'+u.username,title:fd.get('title'),caption:fd.get('caption'),videoUrl:ud.url});form.reset();form.hidden=true;status.textContent='Published!';await load()}catch(err){status.textContent=err.message}finally{button.disabled=false}};section.querySelector('#realVibesPrev').onclick=()=>track.scrollBy({left:-track.clientWidth*.82,behavior:'smooth'});section.querySelector('#realVibesNext').onclick=()=>track.scrollBy({left:track.clientWidth*.82,behavior:'smooth'});load()})();
+
+/* Load the future-ready AI Reel Studio next to the live upload flow. */
+(() => {
+  const cssId='hubcore-reel-ai-css';
+  if(!document.getElementById(cssId)){
+    const link=document.createElement('link');
+    link.id=cssId;
+    link.rel='stylesheet';
+    link.href='reel-ai-studio.css?v=20260915-ai1';
+    document.head.appendChild(link);
+  }
+  if(!document.querySelector('script[data-reel-ai-studio]')){
+    const script=document.createElement('script');
+    script.src='reel-ai-studio.js?v=20260915-ai1';
+    script.defer=true;
+    script.dataset.reelAiStudio='true';
+    document.body.appendChild(script);
+  }
+})();
