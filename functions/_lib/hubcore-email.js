@@ -14,12 +14,12 @@ export function hubcoreEmailStatus(env) {
   const investorSenderConfigured = Boolean(env?.INVESTOR_FROM_EMAIL || env?.CLOUDFLARE_EMAIL_FROM || cloudflareConfigured);
   return {
     destination: HUBCORE_NOTIFICATION_EMAIL,
-    provider: cloudflareConfigured ? 'cloudflare' : resendConfigured ? 'resend' : 'none',
+    provider: resendConfigured ? 'resend' : cloudflareConfigured ? 'cloudflare' : 'none',
     cloudflareConfigured,
     resendConfigured,
     contactSenderConfigured,
     investorSenderConfigured,
-    emailReady: Boolean(cloudflareConfigured || (resendConfigured && (contactSenderConfigured || investorSenderConfigured)))
+    emailReady: Boolean((resendConfigured && (contactSenderConfigured || investorSenderConfigured)) || cloudflareConfigured)
   };
 }
 
@@ -87,10 +87,10 @@ export async function sendHubCoreEmail(env, { purpose = 'contact', replyTo, subj
   };
 
   const status = hubcoreEmailStatus(env);
-  if (status.cloudflareConfigured) {
-    const result = await sendViaCloudflare(env, message);
+  if (status.resendConfigured) {
+    const result = await sendViaResend(env, message);
     if (result.sent) return result;
   }
-  if (status.resendConfigured) return sendViaResend(env, message);
+  if (status.cloudflareConfigured) return sendViaCloudflare(env, message);
   return { sent: false, reason: 'notification_not_configured' };
 }
