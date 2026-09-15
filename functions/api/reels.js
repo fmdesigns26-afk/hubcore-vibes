@@ -19,7 +19,7 @@ async function read(db){
   const map=new Map(); for(const c of comments.results||[]){if(!map.has(c.reel_id))map.set(c.reel_id,[]);map.get(c.reel_id).push({id:c.id,author:c.author,text:c.text,createdAt:Number(c.created_at)});}
   return (reels.results||[]).map(r=>({id:r.id,author:r.author,handle:r.handle,title:r.title,caption:r.caption,videoUrl:r.video_url,theme:r.theme,featured:Boolean(r.featured),createdAt:Number(r.created_at),likes:Number(r.likes),shares:Number(r.shares),comments:map.get(r.id)||[]}));
 }
-export async function onRequestGet({env}){if(!env?.DB)return json({error:'Reel storage is unavailable.'},503);try{await ensure(env.DB);return json({reels:await read(env.DB)});}catch(e){return json({error:'Unable to load Reel Vibes.'},500);}}
+export async function onRequestGet({env}){if(!env?.DB)return json({error:'Reel storage is unavailable.',uploadReady:false},503);try{await ensure(env.DB);return json({reels:await read(env.DB),uploadReady:Boolean(env?.MEDIA)});}catch(e){return json({error:'Unable to load Reel Vibes.',uploadReady:false},500);}}
 export async function onRequestPost({request,env}){if(!env?.DB)return json({error:'Reel storage is unavailable.'},503);try{
   await ensure(env.DB); const b=await request.json(); const action=clean(b.action,30);
   if(action==='create_reel'){
