@@ -37,6 +37,13 @@
       promote.style.opacity='1';
       promote.style.transform='none';
     }
+    if(!document.querySelector('script[data-hubcore-enhancements]')){
+      const upgrades=document.createElement('script');
+      upgrades.src='hubcore-enhancements.js?v=20260916-1';
+      upgrades.defer=true;
+      upgrades.dataset.hubcoreEnhancements='true';
+      document.body.appendChild(upgrades);
+    }
   };
   document.body.appendChild(script);
 })();
