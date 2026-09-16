@@ -1,0 +1,74 @@
+/* Desktop header repair: keep the full menu visible and place notifications at the far right. */
+@media (min-width:1200px){
+  header.nav{
+    display:grid!important;
+    grid-template-columns:max-content minmax(0,1fr) 44px!important;
+    align-items:center!important;
+    column-gap:12px!important;
+    flex-wrap:nowrap!important;
+    overflow:visible!important;
+  }
+  header.nav>.brand{grid-column:1!important;min-width:max-content!important;margin:0!important}
+  header.nav>.mobile-menu-toggle{display:none!important}
+  header.nav>.launch-nav{
+    grid-column:2!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:0!important;
+    overflow:visible!important;
+  }
+  header.nav>.launch-nav>a{
+    flex:0 0 auto!important;
+    padding:9px 6px!important;
+    font-size:.57rem!important;
+    letter-spacing:.07em!important;
+    white-space:nowrap!important;
+  }
+  header.nav>.launch-nav>.nav-cta{margin-left:3px!important;padding-inline:9px!important}
+  header.nav>#hubcoreNotificationButton{
+    grid-column:3!important;
+    justify-self:end!important;
+    align-self:center!important;
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    margin:0!important;
+    z-index:5201!important;
+    border-color:rgba(190,145,255,.36)!important;
+    background:linear-gradient(145deg,rgba(28,18,46,.96),rgba(11,8,20,.96))!important;
+    box-shadow:0 8px 24px rgba(0,0,0,.28),0 0 18px rgba(143,77,255,.12)!important;
+  }
+  header.nav>#hubcoreNotificationButton:hover,
+  header.nav>#hubcoreNotificationButton[aria-expanded="true"]{
+    border-color:rgba(190,145,255,.7)!important;
+    box-shadow:0 8px 28px rgba(0,0,0,.34),0 0 24px rgba(143,77,255,.24)!important;
+  }
+  #notificationPanel{
+    z-index:5200!important;
+    top:86px!important;
+    right:28px!important;
+    width:min(370px,calc(100vw - 56px))!important;
+    border-color:rgba(190,145,255,.36)!important;
+    box-shadow:0 28px 80px rgba(0,0,0,.58),0 0 34px rgba(143,77,255,.1)!important;
+  }
+  #notificationPanel .notification-head button{
+    width:34px!important;
+    height:34px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:50%!important;
+    cursor:pointer!important;
+  }
+  #notificationPanel .notification-head button:hover{background:rgba(255,255,255,.08)!important}
+  #notificationList article[role="button"]{cursor:pointer!important;border-radius:12px!important;transition:background .16s ease,transform .16s ease!important}
+  #notificationList article[role="button"]:hover{background:rgba(143,77,255,.1)!important;transform:translateX(2px)!important}
+}
+
+@media (min-width:1440px){
+  header.nav>.launch-nav>a{font-size:.62rem!important;padding-inline:8px!important}
+  header.nav{column-gap:16px!important}
+}
