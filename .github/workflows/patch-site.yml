@@ -25,6 +25,8 @@ jobs:
           test -f founder-mode.js
           test -f early-access-live.js
           test -f real-vibes.js
+          test -f reel-ai-studio.js
+          test -f desktop-polish.css
           test -f vibepromote.js
           test -f vibepromote.css
           test -f hubcore-enhancements.js
@@ -61,6 +63,7 @@ jobs:
           node --check founder-mode.js
           node --check early-access-live.js
           node --check real-vibes.js
+          node --check reel-ai-studio.js
           node --check vibepromote.js
           node --check hubcore-enhancements.js
           node --check sw.js
