@@ -1,0 +1,107 @@
+/* HubCore Vibes: keep the signed-out mobile header compact and on one row. */
+@media (max-width:980px){
+  header.nav:not(.member-signed-in){
+    min-height:68px!important;
+    padding:8px 10px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 42px 90px!important;
+    grid-template-rows:52px!important;
+    align-items:center!important;
+    column-gap:7px!important;
+    row-gap:0!important;
+    overflow:visible!important;
+  }
+
+  header.nav:not(.member-signed-in)>.brand{
+    grid-column:1!important;
+    grid-row:1!important;
+    min-width:0!important;
+    width:auto!important;
+    min-height:44px!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+
+  header.nav:not(.member-signed-in)>.brand .brand-mark{
+    width:40px!important;
+    height:40px!important;
+    flex:0 0 40px!important;
+  }
+
+  header.nav:not(.member-signed-in)>.brand>span:last-child{
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    font-size:1rem!important;
+  }
+
+  header.nav:not(.member-signed-in)>#hubcoreNotificationButton{
+    grid-column:2!important;
+    grid-row:1!important;
+    justify-self:center!important;
+    align-self:center!important;
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    margin:0!important;
+    position:relative!important;
+    z-index:2205!important;
+  }
+
+  header.nav:not(.member-signed-in)>.mobile-menu-toggle{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    align-self:center!important;
+    width:90px!important;
+    height:42px!important;
+    margin:0!important;
+  }
+
+  header.nav:not(.member-signed-in)>.launch-nav{
+    grid-column:auto!important;
+    grid-row:auto!important;
+    top:calc(100% + 7px)!important;
+    right:10px!important;
+  }
+
+  header.nav:not(.member-signed-in)+main{
+    margin-top:0!important;
+  }
+
+  #notificationPanel{
+    top:76px!important;
+    right:10px!important;
+    left:auto!important;
+    width:min(360px,calc(100vw - 20px))!important;
+    max-height:calc(100vh - 92px)!important;
+    overflow:auto!important;
+  }
+}
+
+@media (max-width:420px){
+  header.nav:not(.member-signed-in){
+    grid-template-columns:minmax(0,1fr) 38px 82px!important;
+    column-gap:5px!important;
+    padding-inline:8px!important;
+  }
+  header.nav:not(.member-signed-in)>.brand .brand-mark{
+    width:36px!important;
+    height:36px!important;
+    flex-basis:36px!important;
+  }
+  header.nav:not(.member-signed-in)>.brand>span:last-child{font-size:.92rem!important}
+  header.nav:not(.member-signed-in)>#hubcoreNotificationButton{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+  }
+  header.nav:not(.member-signed-in)>.mobile-menu-toggle{
+    width:82px!important;
+    height:40px!important;
+    padding-right:8px!important;
+    padding-left:36px!important;
+  }
+}
