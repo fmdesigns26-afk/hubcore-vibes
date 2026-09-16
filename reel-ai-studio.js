@@ -8,6 +8,16 @@
   document.head.appendChild(link);
 })();
 
+/* Repair the desktop header after the account/notification UI is injected. */
+(() => {
+  if(document.querySelector('script[data-desktop-header-fix]'))return;
+  const script=document.createElement('script');
+  script.src='desktop-header-fix.js?v=20260916-1';
+  script.defer=true;
+  script.dataset.desktopHeaderFix='true';
+  (document.body||document.documentElement).appendChild(script);
+})();
+
 (() => {
   const section=document.getElementById('reel-vibes');
   if(!section||document.getElementById('reelAiStudio'))return;
