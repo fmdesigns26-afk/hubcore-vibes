@@ -86,9 +86,9 @@ async function notifyFounder(env,promo,plan,payUrl){
   return sendHubCoreEmail(env,{
     purpose:'contact',
     replyTo:promo.contactEmail,
-    subject:`VIBEPROMOTE ${money(plan.amountCents)} — ${promo.businessName}`,
+    subject:`PROMOTEVIBE ${money(plan.amountCents)} — ${promo.businessName}`,
     text:[
-      'New HubCore Vibes VibePromote submission',
+      'New HubCore Vibes promoteVibe submission',
       '',
       `Reference: ${promo.id}`,
       `Business / creator: ${promo.businessName}`,
@@ -103,7 +103,7 @@ async function notifyFounder(env,promo,plan,payUrl){
       `Existing Reel ID: ${promo.reelId||'—'}`,
       `Payment link configured: ${payUrl?'YES':'NO — reply to the customer to arrange payment manually'}`,
       '',
-      'Founder action: sign in on HubCore Vibes, open VibePromote, mark the submission paid, then approve it. Approval starts the paid campaign timer.',
+      'Founder action: sign in on HubCore Vibes, open promoteVibe, mark the submission paid, then approve it. Approval starts the paid campaign timer.',
       '',
       'Reply directly to this email to contact the customer.'
     ].join('\n')
@@ -111,7 +111,7 @@ async function notifyFounder(env,promo,plan,payUrl){
 }
 
 export async function onRequestGet({request,env}){
-  if(!env?.DB)return json({error:'VibePromote database is unavailable.'},503);
+  if(!env?.DB)return json({error:'promoteVibe database is unavailable.'},503);
   try{
     await ensure(env.DB);
     const url=new URL(request.url),founderView=url.searchParams.get('founder')==='1';
@@ -123,12 +123,12 @@ export async function onRequestGet({request,env}){
     const now=Date.now();
     const rows=await env.DB.prepare(`SELECT * FROM vibe_promotions WHERE status='approved' AND payment_status='paid' AND starts_at<=? AND ends_at>? ORDER BY featured DESC, approved_at DESC LIMIT 80`).bind(now,now).all();
     return json({ok:true,promotions:(rows.results||[]).map(publicRow)});
-  }catch(error){console.error('VibePromote GET error',error);return json({error:'Unable to load VibePromote.'},500);}
+  }catch(error){console.error('promoteVibe GET error',error);return json({error:'Unable to load promoteVibe.'},500);}
 }
 
 export async function onRequestPost(context){
   const {request,env}=context;
-  if(!env?.DB)return json({error:'VibePromote database is unavailable.'},503);
+  if(!env?.DB)return json({error:'promoteVibe database is unavailable.'},503);
   try{
     await ensure(env.DB);
     const body=await request.json(),action=clean(body.action||'submit',30);
@@ -157,7 +157,7 @@ export async function onRequestPost(context){
       await env.DB.prepare(`INSERT INTO vibe_promotions (id,user_id,author_name,author_handle,contact_email,business_name,title,description,category,destination_url,media_url,reel_id,plan_code,plan_label,amount_cents,duration_days,featured,payment_status,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'pending','pending',?)`).bind(id,u.id,u.name,'@'+u.username,u.email,businessName,title,description,category,destinationUrl||'',mediaUrl,reelId,plan.code,plan.label,plan.amountCents,plan.durationDays,plan.featured?1:0,now).run();
 
       if(hubcoreEmailStatus(env).emailReady){
-        context.waitUntil(notifyFounder(env,{id,businessName,authorName:u.name,authorHandle:'@'+u.username,contactEmail:u.email,title,description,category,destinationUrl:destinationUrl||'',mediaUrl,reelId},plan,payUrl).catch(error=>console.error('VibePromote email error',error)));
+        context.waitUntil(notifyFounder(env,{id,businessName,authorName:u.name,authorHandle:'@'+u.username,contactEmail:u.email,title,description,category,destinationUrl:destinationUrl||'',mediaUrl,reelId},plan,payUrl).catch(error=>console.error('promoteVibe email error',error)));
       }
       return json({ok:true,id,reference:id,plan:{code:plan.code,label:plan.label,amountCents:plan.amountCents},paymentUrl:payUrl||'',paymentConfigured:Boolean(payUrl),message:payUrl?'Submission saved. Complete payment, then HubCore will review your promotion.':'Submission saved. HubCore will contact you at your account email to arrange payment.'},201);
     }
@@ -185,6 +185,6 @@ export async function onRequestPost(context){
       return json({ok:true,promotion:founderRow(updated)});
     }
 
-    return json({error:'Unknown VibePromote action.'},400);
-  }catch(error){console.error('VibePromote POST error',error);return json({error:'Unable to process VibePromote right now.'},500);}
+    return json({error:'Unknown promoteVibe action.'},400);
+  }catch(error){console.error('promoteVibe POST error',error);return json({error:'Unable to process promoteVibe right now.'},500);}
 }
