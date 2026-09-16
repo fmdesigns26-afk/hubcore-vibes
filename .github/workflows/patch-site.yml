@@ -27,6 +27,13 @@ jobs:
           test -f real-vibes.js
           test -f vibepromote.js
           test -f vibepromote.css
+          test -f hubcore-enhancements.js
+          test -f hubcore-enhancements.css
+          test -f manifest.webmanifest
+          test -f sw.js
+          test -f community-guidelines.html
+          test -f copyright.html
+          test -f account-deletion.html
           test -f mobile-nav.js
           test -f trailer-actions.js
           test -f trailer-engagement.css
@@ -44,6 +51,7 @@ jobs:
           test -f functions/api/upload.js
           test -f functions/api/reality-comments.js
           test -f functions/api/vibepromote.js
+          test -f functions/api/promote-waitlist.js
 
       - name: Validate browser JavaScript syntax
         run: |
@@ -54,6 +62,8 @@ jobs:
           node --check early-access-live.js
           node --check real-vibes.js
           node --check vibepromote.js
+          node --check hubcore-enhancements.js
+          node --check sw.js
           node --check mobile-nav.js
           node --check trailer-actions.js
           node --check platform-health.js
