@@ -8,6 +8,16 @@
   document.head.appendChild(link);
 })();
 
+/* Keep the signed-out mobile header compact: brand + bell + menu in one row. */
+(() => {
+  if(document.getElementById('hubcore-mobile-guest-header-fix'))return;
+  const link=document.createElement('link');
+  link.id='hubcore-mobile-guest-header-fix';
+  link.rel='stylesheet';
+  link.href='mobile-guest-header-fix.css?v=20260916-1';
+  document.head.appendChild(link);
+})();
+
 /* Repair the desktop header after the account/notification UI is injected. */
 (() => {
   if(document.querySelector('script[data-desktop-header-fix]'))return;
