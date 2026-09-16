@@ -1,0 +1,94 @@
+/* HubCore Vibes desktop-only polish. Mobile/tablet behaviour remains controlled by the existing responsive files. */
+@media (min-width:1100px){
+  :root{--max:1360px}
+  html{scroll-padding-top:88px}
+  body{background-attachment:fixed}
+
+  .nav{min-height:74px;padding:12px max(30px,calc((100vw - 1480px)/2 + 28px))!important;background:rgba(7,5,13,.82)!important;border-bottom:1px solid rgba(190,145,255,.16)!important;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+  .brand{font-size:1.14rem!important;letter-spacing:.025em!important}
+  .brand-mark{width:32px!important;height:32px!important}
+  .launch-nav{gap:3px!important;padding:5px!important;border:1px solid rgba(190,145,255,.11);border-radius:16px;background:rgba(255,255,255,.018)}
+  .launch-nav a,.launch-nav .nav-cta{padding:9px 9px!important;border-radius:10px!important;transition:background .18s ease,color .18s ease,transform .18s ease!important}
+  .launch-nav a:hover{background:rgba(143,77,255,.12);transform:translateY(-1px)}
+  .launch-nav a.active{background:rgba(143,77,255,.18);color:#fff!important}
+  .launch-nav a.active::after{display:none!important}
+  .launch-nav .nav-cta{margin-left:5px;background:linear-gradient(135deg,rgba(143,77,255,.25),rgba(67,217,255,.08))!important;border-color:rgba(183,136,255,.38)!important}
+
+  .section,.investor-section{max-width:1360px!important;padding:94px 4.25%!important}
+  .section-heading{margin-bottom:30px}
+  .section-heading>p,.community-feedback-intro{max-width:760px}
+  .section h2{max-width:900px}
+
+  .launch-hero{max-width:1360px!important;min-height:720px!important;padding:78px 4.25% 70px!important;grid-template-columns:1.08fr .92fr!important;gap:64px!important}
+  .launch-hero h1{font-size:clamp(4rem,6.4vw,6.4rem)!important;max-width:760px!important}
+  .launch-hero .lead{font-size:1.08rem!important;max-width:700px!important;line-height:1.72}
+  .launch-hero .hero-art{min-height:540px!important}
+  .launch-hero .actions{margin-top:32px}
+  .launch-hero .btn{min-width:190px}
+
+  .universe-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+  .universe-grid article{min-height:238px;padding:26px!important;border-color:rgba(190,145,255,.18)!important;background:linear-gradient(180deg,rgba(27,18,43,.74),rgba(10,7,18,.82))!important;box-shadow:0 18px 44px rgba(0,0,0,.18);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .universe-grid article:hover{transform:translateY(-5px);border-color:rgba(190,145,255,.46)!important;box-shadow:0 26px 65px rgba(0,0,0,.3),0 0 30px rgba(143,77,255,.09)}
+  .universe-grid article h3{font-size:1.28rem;margin-top:30px}
+  .universe-grid article p{font-size:.92rem;line-height:1.65}
+
+  .sync-section{grid-template-columns:1.04fr .96fr!important;gap:72px!important;align-items:center!important}
+  .sync-points{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin-top:28px}
+  .sync-points>div{min-height:150px;padding:20px!important}
+  .sync-visual{min-height:480px}
+
+  #platform .platform-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px!important}
+  #platform .platform-panel{min-height:290px;padding:26px!important;border-color:rgba(190,145,255,.18)!important;background:linear-gradient(180deg,rgba(22,14,37,.78),rgba(10,7,17,.84))!important}
+  #platform .platform-toolbar{max-width:560px}
+
+  #community{max-width:1240px!important}
+  #community .community-composer{max-width:980px;margin-left:auto;margin-right:auto;padding:24px!important}
+  #community .engagement-prompt{max-width:980px;margin-left:auto;margin-right:auto}
+  #community .vibe-feed-tabs,#community #feedModeMessage,#community #communityFeed{max-width:980px;margin-left:auto;margin-right:auto}
+  #community .post-card{padding:22px!important;border-radius:22px!important;box-shadow:0 16px 42px rgba(0,0,0,.16)}
+
+  #reel-vibes{max-width:1360px!important}
+  #reel-vibes .real-vibes-head{align-items:flex-end!important;margin-bottom:28px!important}
+  #reel-vibes .reel-composer,#reel-vibes .reel-ai-studio{border-radius:22px!important;box-shadow:0 18px 48px rgba(0,0,0,.2)}
+  #reel-vibes .real-vibes-track{grid-auto-columns:minmax(300px,340px)!important;gap:22px!important;padding:8px 6px 26px!important}
+  #reel-vibes .real-vibe-card{border-radius:30px!important;box-shadow:0 30px 72px rgba(0,0,0,.42)!important;transition:transform .2s ease,border-color .2s ease}
+  #reel-vibes .real-vibe-card:hover{transform:translateY(-4px);border-color:rgba(203,164,255,.55)!important}
+
+  #vibe-promote{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important}
+  #vibe-promote .promote-waitlist{padding:32px!important;border-radius:24px!important;background:radial-gradient(circle at 85% 0,rgba(67,217,255,.08),transparent 28%),linear-gradient(180deg,rgba(26,17,43,.9),rgba(10,7,18,.94))!important;box-shadow:0 24px 65px rgba(0,0,0,.25)}
+  #vibe-promote .promote-waitlist>p{max-width:760px}
+  #vibe-promote .waitlist-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}
+
+  #ai.ai{grid-template-columns:1.05fr .95fr!important;gap:70px!important;align-items:center!important}
+  #ai .ai-card{min-height:430px!important;border-radius:30px!important;box-shadow:0 28px 76px rgba(0,0,0,.25)}
+
+  #reality .reality-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+  #reality .gallery{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
+  #reality .gallery img{border-radius:20px!important;box-shadow:0 18px 48px rgba(0,0,0,.28)}
+
+  #founder.founder-launch{grid-template-columns:.78fr 1.22fr!important;gap:72px!important;align-items:center!important}
+  #founder .portrait-only{width:min(360px,100%)!important}
+  #founder .founder-details{max-width:780px}
+
+  .reach-section .counter-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important;max-width:760px}
+  .reach-section .counter-grid>div{min-height:180px!important;display:grid;place-content:center;border-radius:24px!important;box-shadow:0 20px 52px rgba(0,0,0,.2)}
+
+  .investor-layout{grid-template-columns:.9fr 1.1fr!important;gap:34px!important}
+  .investor-copy,.investor-form-card{min-height:100%;box-shadow:0 24px 66px rgba(0,0,0,.2)}
+
+  .early-access-shell{max-width:1100px;margin:28px auto 0!important;padding:32px!important;border-radius:24px!important;box-shadow:0 24px 64px rgba(0,0,0,.24)}
+  .member-home,.hubcore-profile{max-width:1180px!important;margin-left:auto!important;margin-right:auto!important}
+  .profile-hero{padding:32px!important;border-radius:26px!important;box-shadow:0 24px 64px rgba(0,0,0,.22)}
+  .profile-avatar{width:116px!important;height:116px!important}
+
+  .hubcore-trust{max-width:1360px!important;margin-top:72px!important;padding:28px 4.25%!important}
+
+  .glass-panel,.platform-panel,.investor-copy,.investor-form-card,.community-composer,.engagement-prompt{transition:border-color .2s ease,box-shadow .2s ease}
+  .glass-panel:hover,.platform-panel:hover,.investor-copy:hover,.investor-form-card:hover{border-color:rgba(190,145,255,.32)!important}
+}
+
+@media (min-width:1440px){
+  .launch-hero{min-height:760px!important}
+  .section,.investor-section{padding-top:108px!important;padding-bottom:108px!important}
+  .launch-nav a{font-size:.66rem!important}
+}
