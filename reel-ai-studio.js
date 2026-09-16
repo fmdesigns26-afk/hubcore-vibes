@@ -12,7 +12,7 @@
       <div>
         <div class="eyebrow">AI CREATION · REEL VIBES</div>
         <h3>AI Reel Studio is coming next.</h3>
-        <p>Photo-to-Reel, Auto Cut, Smart Captions and Music Sync are being connected to a real rendering service. We are not showing a fake upload form while that backend is unavailable.</p>
+        <p>Photo-to-Reel, Auto Cut, Smart Captions and Music Sync are being connected to a real rendering service.</p>
       </div>
       <span class="reel-ai-badge">COMING NEXT</span>
     </div>
@@ -23,11 +23,11 @@
   composer.insertAdjacentElement('afterend',studio);
 })();
 
-/* Load VibePromote beside Reel Vibes without touching the organic feed. */
+/* Load promoteVibe beside Reel Vibes without touching the organic feed. */
 (() => {
   if(document.querySelector('script[data-vibepromote]'))return;
   const script=document.createElement('script');
-  script.src='vibepromote.js?v=20260916-income2';
+  script.src='vibepromote.js?v=20260916-income3';
   script.defer=true;
   script.dataset.vibepromote='true';
   script.onload=()=>{
