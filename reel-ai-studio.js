@@ -1,3 +1,13 @@
+/* Load the dedicated desktop visual polish without changing mobile behaviour. */
+(() => {
+  if(document.getElementById('hubcore-desktop-polish'))return;
+  const link=document.createElement('link');
+  link.id='hubcore-desktop-polish';
+  link.rel='stylesheet';
+  link.href='desktop-polish.css?v=20260916-1';
+  document.head.appendChild(link);
+})();
+
 (() => {
   const section=document.getElementById('reel-vibes');
   if(!section||document.getElementById('reelAiStudio'))return;
