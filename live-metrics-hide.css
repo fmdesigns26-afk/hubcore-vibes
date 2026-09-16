@@ -1,4 +1,0 @@
-/* HubCore Vibes: the Pulse of the Community no longer displays the Posts / Comments / Reactions / Contributors live-metrics panel. Site Visits analytics are intentionally untouched. */
-#platform .platform-panel:has(#liveMetrics){display:none!important;}
-#platform .platform-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-@media(max-width:760px){#platform .platform-grid{grid-template-columns:1fr;}}
