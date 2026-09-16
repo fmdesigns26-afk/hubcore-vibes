@@ -16,18 +16,21 @@ async function ensure(db){
 async function read(db){
   const reels=await db.prepare(`SELECT id,author,handle,title,caption,video_url,theme,featured,created_at,likes,shares FROM reels ORDER BY featured DESC,created_at DESC LIMIT 60`).all();
   const comments=await db.prepare(`SELECT id,reel_id,author,text,created_at FROM reel_comments ORDER BY created_at ASC LIMIT 600`).all();
-  const map=new Map(); for(const c of comments.results||[]){if(!map.has(c.reel_id))map.set(c.reel_id,[]);map.get(c.reel_id).push({id:c.id,author:c.author,text:c.text,createdAt:Number(c.created_at)});}
+  const map=new Map();for(const c of comments.results||[]){if(!map.has(c.reel_id))map.set(c.reel_id,[]);map.get(c.reel_id).push({id:c.id,author:c.author,text:c.text,createdAt:Number(c.created_at)});}
   return (reels.results||[]).map(r=>({id:r.id,author:r.author,handle:r.handle,title:r.title,caption:r.caption,videoUrl:r.video_url,theme:r.theme,featured:Boolean(r.featured),createdAt:Number(r.created_at),likes:Number(r.likes),shares:Number(r.shares),comments:map.get(r.id)||[]}));
 }
-export async function onRequestGet({env}){if(!env?.DB)return json({error:'Reel storage is unavailable.',uploadReady:false},503);try{await ensure(env.DB);return json({reels:await read(env.DB),uploadReady:Boolean(env?.MEDIA)});}catch(e){return json({error:'Unable to load Reel Vibes.',uploadReady:false},500);}}
+export async function onRequestGet({env}){if(!env?.DB)return json({error:'Reel storage is unavailable.',uploadReady:false,imageUploadReady:false,videoUploadReady:false},503);try{await ensure(env.DB);return json({reels:await read(env.DB),uploadReady:true,imageUploadReady:true,videoUploadReady:Boolean(env?.MEDIA)});}catch(e){console.error('Reel read error',e);return json({error:'Unable to load Reel Vibes.',uploadReady:false,imageUploadReady:false,videoUploadReady:false},500);}}
 export async function onRequestPost({request,env}){if(!env?.DB)return json({error:'Reel storage is unavailable.'},503);try{
-  await ensure(env.DB); const b=await request.json(); const action=clean(b.action,30);
+  await ensure(env.DB);const b=await request.json();const action=clean(b.action,30);
   if(action==='create_reel'){
     const u=await member(request,env.DB);if(!u)return json({error:'Please sign up or log in before publishing a Reel Vibe.'},401);
-    const title=clean(b.title,120),caption=clean(b.caption,800),videoUrl=clean(b.videoUrl,1200);
-    if(!title||!videoUrl)return json({error:'A Reel title and uploaded video are required.'},400);
-    if(!videoUrl.startsWith('/api/media/')){let url;try{url=new URL(videoUrl);if(url.protocol!=='https:')throw 0;}catch{return json({error:'Use an uploaded video or secure https video link.'},400);}}
-    const id=uid('reel');await env.DB.prepare(`INSERT INTO reels (id,author,handle,title,caption,video_url,theme,featured,created_at) VALUES (?,?,?,?,?,?,?,?,?)`).bind(id,u.name,'@'+u.username,title,caption,videoUrl,'creator',0,Date.now()).run();return json({ok:true,id});
+    const title=clean(b.title,120),caption=clean(b.caption,800),mediaUrl=String(b.videoUrl??'').trim(),mediaType=clean(b.mediaType,20)==='image'?'image':'video';
+    if(!title||!mediaUrl)return json({error:'A Reel title and uploaded photo or video are required.'},400);
+    if(mediaUrl.length>1600000)return json({error:'This uploaded media reference is too large.'},413);
+    const dataImage=/^data:image\/(jpeg|png|webp|gif);base64,/i.test(mediaUrl);
+    if(!mediaUrl.startsWith('/api/media/')&&!dataImage){let url;try{url=new URL(mediaUrl);if(url.protocol!=='https:')throw 0;}catch{return json({error:'Use an uploaded photo/video or secure https media link.'},400);}}
+    const theme=mediaType==='image'||dataImage?'photo':'creator';
+    const id=uid('reel');await env.DB.prepare(`INSERT INTO reels (id,author,handle,title,caption,video_url,theme,featured,created_at) VALUES (?,?,?,?,?,?,?,?,?)`).bind(id,u.name,'@'+u.username,title,caption,mediaUrl,theme,0,Date.now()).run();return json({ok:true,id,mediaType:theme==='photo'?'image':'video'});
   }
   if(action==='comment'){
     const u=await member(request,env.DB);if(!u)return json({error:'Please sign up or log in before commenting.'},401);
