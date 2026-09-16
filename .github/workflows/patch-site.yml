@@ -34,6 +34,15 @@ jobs:
           test -f vibepromote.css
           test -f hubcore-enhancements.js
           test -f hubcore-enhancements.css
+          test -f seo-structured-data.js
+          test -f seo-pages.css
+          test -f sitemap.xml
+          test -f robots.txt
+          test -f about/index.html
+          test -f community/index.html
+          test -f reel-vibes/index.html
+          test -f reality-switch/index.html
+          test -f promote-vibe/index.html
           test -f manifest.webmanifest
           test -f sw.js
           test -f community-guidelines.html
@@ -57,6 +66,8 @@ jobs:
           test -f functions/api/reality-comments.js
           test -f functions/api/vibepromote.js
           test -f functions/api/promote-waitlist.js
+          grep -q 'https://hubcorevibes.com/sitemap.xml' robots.txt
+          grep -q 'https://hubcorevibes.com/reality-switch/' sitemap.xml
 
       - name: Validate browser JavaScript syntax
         run: |
@@ -70,6 +81,7 @@ jobs:
           node --check desktop-header-fix.js
           node --check vibepromote.js
           node --check hubcore-enhancements.js
+          node --check seo-structured-data.js
           node --check sw.js
           node --check mobile-nav.js
           node --check trailer-actions.js

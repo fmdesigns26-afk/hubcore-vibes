@@ -1,8 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://hubcorevibes.com/</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image><image:loc>https://hubcorevibes.com/hubcore-logo.png</image:loc><image:title>HubCore Vibes logo</image:title></image:image>
+    <image:image><image:loc>https://hubcorevibes.com/assets/reality/reality-beach.png</image:loc><image:title>Reality Switch coastal environment</image:title></image:image>
+    <image:image><image:loc>https://hubcorevibes.com/assets/reality/reality-storyboard.png</image:loc><image:title>Reality Switch cinematic storyboard</image:title></image:image>
   </url>
+  <url>
+    <loc>https://hubcorevibes.com/about/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://hubcorevibes.com/hubcore-logo.png</image:loc><image:title>HubCore Vibes</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://hubcorevibes.com/community/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://hubcorevibes.com/reel-vibes/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://hubcorevibes.com/reality-switch/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image><image:loc>https://hubcorevibes.com/assets/reality/reality-storyboard.png</image:loc><image:title>Reality Switch game concept storyboard</image:title></image:image>
+    <image:image><image:loc>https://hubcorevibes.com/assets/reality/reality-beach.png</image:loc><image:title>Reality Switch coastal environment</image:title></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://hubcorevibes.com/assets/reality/reality-storyboard.png</video:thumbnail_loc>
+      <video:title>Reality Switch — New Trailer</video:title>
+      <video:description>Trailer for Reality Switch, a game concept in development from HubCore Vibes.</video:description>
+      <video:content_loc>https://hubcorevibes.com/assets/videos/reality-switch-trailer-02-new.mp4</video:content_loc>
+      <video:publication_date>2026-09-15</video:publication_date>
+    </video:video>
+  </url>
+  <url>
+    <loc>https://hubcorevibes.com/promote-vibe/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url><loc>https://hubcorevibes.com/privacy.html</loc><lastmod>2026-09-16</lastmod><priority>0.4</priority></url>
+  <url><loc>https://hubcorevibes.com/terms.html</loc><lastmod>2026-09-16</lastmod><priority>0.4</priority></url>
+  <url><loc>https://hubcorevibes.com/community-guidelines.html</loc><lastmod>2026-09-16</lastmod><priority>0.4</priority></url>
 </urlset>
