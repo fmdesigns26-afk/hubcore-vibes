@@ -18,6 +18,16 @@
   document.head.appendChild(link);
 })();
 
+/* Add Google-readable organization/site structured data and crawlable discovery links. */
+(() => {
+  if(document.querySelector('script[data-hubcore-seo]'))return;
+  const script=document.createElement('script');
+  script.src='seo-structured-data.js?v=20260916-1';
+  script.defer=true;
+  script.dataset.hubcoreSeo='true';
+  (document.body||document.documentElement).appendChild(script);
+})();
+
 /* Repair the desktop header after the account/notification UI is injected. */
 (() => {
   if(document.querySelector('script[data-desktop-header-fix]'))return;
