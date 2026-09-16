@@ -27,8 +27,16 @@
 (() => {
   if(document.querySelector('script[data-vibepromote]'))return;
   const script=document.createElement('script');
-  script.src='vibepromote.js?v=20260916-income1';
+  script.src='vibepromote.js?v=20260916-income2';
   script.defer=true;
   script.dataset.vibepromote='true';
+  script.onload=()=>{
+    const promote=document.getElementById('vibe-promote');
+    if(promote){
+      promote.classList.add('visible');
+      promote.style.opacity='1';
+      promote.style.transform='none';
+    }
+  };
   document.body.appendChild(script);
 })();
