@@ -29,6 +29,7 @@ jobs:
           test -f desktop-polish.css
           test -f desktop-header-fix.js
           test -f desktop-header-fix.css
+          test -f mobile-guest-header-fix.css
           test -f vibepromote.js
           test -f vibepromote.css
           test -f hubcore-enhancements.js
