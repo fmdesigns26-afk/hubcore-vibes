@@ -1,4 +1,12 @@
 (()=>{
+  if(!document.getElementById('hubcore-desktop-header-fix-css')){
+    const link=document.createElement('link');
+    link.id='hubcore-desktop-header-fix-css';
+    link.rel='stylesheet';
+    link.href='desktop-header-fix.css?v=20260916-1';
+    document.head.appendChild(link);
+  }
+
   const mq=window.matchMedia('(min-width:1100px)');
   let ready=false;
 
@@ -42,6 +50,25 @@
     }
   }
 
+  function wireDesktopNav(nav,panel,bell){
+    nav.querySelectorAll('a[href^="#"]').forEach(link=>{
+      if(link.dataset.desktopNavReady)return;
+      link.dataset.desktopNavReady='1';
+      link.addEventListener('click',e=>{
+        if(!mq.matches)return;
+        const selector=link.getAttribute('href');
+        const target=selector&&document.querySelector(selector);
+        if(!target)return;
+        e.preventDefault();
+        panel.classList.remove('open');
+        bell.setAttribute('aria-expanded','false');
+        nav.querySelectorAll('a[href^="#"]').forEach(a=>a.classList.toggle('active',a===link));
+        history.pushState(null,'',selector);
+        target.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  }
+
   function setup(){
     const header=document.querySelector('header.nav');
     const nav=header?.querySelector('.launch-nav');
@@ -54,6 +81,8 @@
       vision=document.createElement('a');
       vision.href='#vision';
       vision.textContent='Vision';
+      nav.insertBefore(vision,nav.firstChild);
+    }else if(nav.firstElementChild!==vision){
       nav.insertBefore(vision,nav.firstChild);
     }
 
@@ -98,6 +127,7 @@
       }
     });
 
+    wireDesktopNav(nav,panel,bell);
     wireNotificationItems(panel);
     const list=panel.querySelector('#notificationList');
     if(list&&!list.dataset.desktopObserver){
