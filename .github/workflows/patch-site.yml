@@ -25,6 +25,8 @@ jobs:
           test -f founder-mode.js
           test -f early-access-live.js
           test -f real-vibes.js
+          test -f vibepromote.js
+          test -f vibepromote.css
           test -f mobile-nav.js
           test -f trailer-actions.js
           test -f trailer-engagement.css
@@ -41,6 +43,7 @@ jobs:
           test -f functions/api/reels.js
           test -f functions/api/upload.js
           test -f functions/api/reality-comments.js
+          test -f functions/api/vibepromote.js
 
       - name: Validate browser JavaScript syntax
         run: |
@@ -50,6 +53,7 @@ jobs:
           node --check founder-mode.js
           node --check early-access-live.js
           node --check real-vibes.js
+          node --check vibepromote.js
           node --check mobile-nav.js
           node --check trailer-actions.js
           node --check platform-health.js

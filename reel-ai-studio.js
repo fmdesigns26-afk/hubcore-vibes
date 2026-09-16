@@ -126,3 +126,13 @@
     }
   });
 })();
+
+/* Load VibePromote beside Reel Vibes without touching the organic feed. */
+(() => {
+  if (document.querySelector('script[data-vibepromote]')) return;
+  const script = document.createElement('script');
+  script.src = 'vibepromote.js?v=20260916-income1';
+  script.defer = true;
+  script.dataset.vibepromote = 'true';
+  document.body.appendChild(script);
+})();
