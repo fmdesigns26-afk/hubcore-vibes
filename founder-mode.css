@@ -1,1 +1,136 @@
 .founder-mode-control{position:fixed;right:14px;bottom:14px;z-index:4000}.founder-login-link{border:1px solid rgba(180,120,255,.28);background:rgba(10,7,18,.72);color:#b9accd;border-radius:999px;padding:8px 11px;font-size:.68rem;backdrop-filter:blur(12px)}.founder-mode-chip{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:14px;border:1px solid rgba(177,114,255,.42);background:rgba(10,7,18,.96);box-shadow:0 12px 34px rgba(0,0,0,.35);font-size:.72rem}.founder-mode-chip button{border:0;background:transparent;color:#b9accd;text-decoration:underline;cursor:pointer}.founder-analytics-link{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid rgba(190,145,255,.38);background:rgba(143,77,255,.14);color:#fff;text-decoration:none;font-weight:800}.founder-badge{display:inline-flex;align-items:center;gap:4px;width:max-content;padding:4px 8px;border-radius:999px;border:1px solid rgba(190,145,255,.48);background:linear-gradient(135deg,rgba(135,74,255,.34),rgba(91,200,255,.12));color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.03em}.founder-identity-lock{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:1px solid rgba(190,145,255,.36);border-radius:14px;background:rgba(143,77,255,.08)}.founder-identity-lock div{display:grid}.founder-identity-lock strong{color:#fff}.founder-identity-lock span{color:#a99dbb;font-size:.78rem}.founder-login-modal{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;padding:20px;background:rgba(3,2,8,.78);backdrop-filter:blur(10px)}.founder-login-card{position:relative;width:min(420px,100%);padding:24px;border-radius:22px;border:1px solid rgba(187,129,255,.42);background:linear-gradient(180deg,#171020,#0b0812);box-shadow:0 24px 70px rgba(0,0,0,.5)}.founder-login-card h3{margin:7px 0 8px;font-size:1.6rem}.founder-login-card p{color:#a99dbb}.founder-login-card form{display:grid;gap:14px;margin-top:18px}.founder-login-card label{display:grid;gap:7px;font-weight:700;font-size:.78rem;color:#d6c8e8}.founder-login-card input{width:100%;min-height:48px;padding:12px 14px;border-radius:13px;border:1px solid rgba(190,145,255,.38);background:#0d0918;color:#fff;font:inherit}.founder-modal-close{position:absolute;right:12px;top:10px;border:0;background:transparent;color:#fff;font-size:1.8rem;cursor:pointer}.founder-login-status{min-height:20px;color:#d9c9ef;font-size:.82rem}.post-author .founder-badge,.comment-bubble .founder-badge{margin-bottom:6px}@media(max-width:640px){.founder-mode-control{right:10px;bottom:10px}.founder-login-link{font-size:.62rem;padding:7px 9px}.founder-mode-chip{max-width:calc(100vw - 20px);flex-wrap:wrap}}
+
+/* 2026-09-17 Founder + cosmic visual refresh.
+   Uses the founder photo supplied by Yutani; no generated replacement artwork. */
+#founder.founder-launch{
+  position:relative!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+#founder .portrait-only{
+  position:relative!important;
+  width:min(430px,42vw)!important;
+  min-height:430px!important;
+  aspect-ratio:1/1.06!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:34px!important;
+  background:#030207!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+}
+#founder .portrait-only::before{
+  content:"";
+  position:absolute;
+  inset:-12% -16% -10% -18%;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 34% 48%,rgba(130,72,255,.22),transparent 52%),
+    linear-gradient(112deg,transparent 24%,rgba(139,92,246,.09) 44%,rgba(83,205,255,.07) 53%,transparent 70%);
+  filter:blur(12px);
+}
+#founder #profileImage{
+  content:url("assets/founder/founder-black-20260917.webp")!important;
+  position:relative!important;
+  z-index:2!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:430px!important;
+  object-fit:cover!important;
+  object-position:48% 50%!important;
+  border:0!important;
+  border-radius:30px!important;
+  background:#030207!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 18px 30px rgba(0,0,0,.48))!important;
+}
+/* One Earth only: positioned over the lower edge so the pose reads as leaning on the planet. */
+#founder .portrait-only::after{
+  content:"";
+  position:absolute;
+  z-index:3;
+  width:68%;
+  aspect-ratio:1;
+  right:-13%;
+  bottom:-19%;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 34% 29%,rgba(126,235,255,.92) 0 2%,transparent 3%),
+    radial-gradient(circle at 61% 43%,rgba(191,138,255,.55) 0 2.5%,transparent 3.3%),
+    radial-gradient(circle at 48% 63%,rgba(86,198,255,.45) 0 1.6%,transparent 2.5%),
+    radial-gradient(circle at 26% 67%,rgba(216,175,255,.45) 0 1.7%,transparent 2.6%),
+    radial-gradient(circle at 36% 30%,#4ca8ff 0 9%,#3158d5 18%,#141b6f 47%,#090d37 70%,#030515 100%);
+  box-shadow:
+    inset -44px -34px 70px rgba(0,0,0,.64),
+    inset 20px 16px 28px rgba(111,223,255,.14),
+    0 0 0 2px rgba(132,205,255,.25),
+    0 0 24px rgba(86,177,255,.48),
+    0 0 62px rgba(126,73,255,.32);
+}
+#founder .founder-details{
+  position:relative!important;
+  z-index:5!important;
+  align-self:center!important;
+}
+
+/* Cosmic background appears in selected scroll sections only, at roughly 45% visual strength. */
+#vision,#sync,#community,#reality,#founder,#investors{
+  background-repeat:no-repeat!important;
+  background-blend-mode:screen,screen,screen,normal!important;
+}
+#vision{
+  background-image:
+    radial-gradient(circle at -5% 34%,rgba(127,93,255,.42) 0 74px,rgba(145,116,255,.18) 75px 80px,transparent 82px),
+    radial-gradient(circle at 76% 22%,rgba(255,255,255,.34) 0 1px,transparent 2px),
+    linear-gradient(128deg,transparent 28%,rgba(119,72,255,.10) 44%,rgba(82,205,255,.08) 51%,transparent 66%),
+    transparent!important;
+}
+#sync{
+  background-image:
+    radial-gradient(circle at 104% 20%,rgba(82,150,255,.42) 0 94px,rgba(142,92,255,.20) 95px 101px,transparent 103px),
+    radial-gradient(circle at 17% 74%,rgba(255,255,255,.30) 0 1px,transparent 2px),
+    linear-gradient(118deg,transparent 25%,rgba(170,104,255,.11) 45%,rgba(76,178,255,.07) 55%,transparent 70%),
+    transparent!important;
+}
+#community{
+  background-image:
+    radial-gradient(circle at -4% 76%,rgba(170,116,255,.38) 0 64px,rgba(110,80,255,.16) 65px 70px,transparent 72px),
+    radial-gradient(circle at 86% 14%,rgba(255,255,255,.28) 0 1px,transparent 2px),
+    linear-gradient(133deg,transparent 29%,rgba(119,72,255,.08) 43%,rgba(103,212,255,.06) 53%,transparent 68%),
+    transparent!important;
+}
+#reality{
+  background-image:
+    radial-gradient(circle at 103% 68%,rgba(91,176,255,.40) 0 84px,rgba(123,78,255,.17) 85px 91px,transparent 93px),
+    radial-gradient(circle at 11% 19%,rgba(255,255,255,.32) 0 1px,transparent 2px),
+    linear-gradient(121deg,transparent 30%,rgba(156,95,255,.10) 46%,rgba(74,189,255,.07) 55%,transparent 71%),
+    transparent!important;
+}
+#founder{
+  background-image:
+    radial-gradient(circle at 93% 12%,rgba(124,84,255,.24) 0 50px,rgba(95,182,255,.10) 51px 55px,transparent 57px),
+    radial-gradient(circle at 10% 84%,rgba(255,255,255,.26) 0 1px,transparent 2px),
+    linear-gradient(128deg,transparent 33%,rgba(134,79,255,.08) 46%,rgba(67,189,255,.06) 56%,transparent 72%),
+    transparent!important;
+}
+#investors{
+  background-image:
+    radial-gradient(circle at -3% 26%,rgba(95,170,255,.34) 0 58px,rgba(138,83,255,.15) 59px 64px,transparent 66px),
+    radial-gradient(circle at 82% 74%,rgba(255,255,255,.26) 0 1px,transparent 2px),
+    linear-gradient(120deg,transparent 26%,rgba(154,96,255,.08) 43%,rgba(70,188,255,.06) 54%,transparent 70%),
+    transparent!important;
+}
+
+@media(max-width:760px){
+  #founder.founder-launch{grid-template-columns:1fr!important;gap:30px!important}
+  #founder .portrait-only{width:min(94vw,430px)!important;min-height:390px!important;margin:0 auto!important}
+  #founder #profileImage{min-height:390px!important;object-position:47% 50%!important}
+  #founder .portrait-only::after{width:64%;right:-7%;bottom:-13%}
+  #vision{background-image:radial-gradient(circle at -10% 28%,rgba(127,93,255,.36) 0 52px,rgba(145,116,255,.14) 53px 58px,transparent 60px),linear-gradient(128deg,transparent 32%,rgba(119,72,255,.08) 47%,rgba(82,205,255,.06) 54%,transparent 68%),transparent!important}
+  #sync{background-image:radial-gradient(circle at 108% 18%,rgba(82,150,255,.36) 0 68px,rgba(142,92,255,.15) 69px 74px,transparent 76px),linear-gradient(118deg,transparent 31%,rgba(170,104,255,.08) 48%,rgba(76,178,255,.05) 56%,transparent 70%),transparent!important}
+  #community{background-image:radial-gradient(circle at -8% 82%,rgba(170,116,255,.32) 0 48px,rgba(110,80,255,.12) 49px 54px,transparent 56px),linear-gradient(133deg,transparent 34%,rgba(119,72,255,.07) 48%,rgba(103,212,255,.05) 56%,transparent 70%),transparent!important}
+  #reality{background-image:radial-gradient(circle at 108% 70%,rgba(91,176,255,.34) 0 60px,rgba(123,78,255,.12) 61px 66px,transparent 68px),linear-gradient(121deg,transparent 34%,rgba(156,95,255,.08) 49%,rgba(74,189,255,.05) 57%,transparent 72%),transparent!important}
+}
