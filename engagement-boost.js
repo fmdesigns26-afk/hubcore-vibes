@@ -11,6 +11,19 @@
     {value:'Reel Vibes', icon:'🎥', label:'Reel Vibes', isNew:true}
   ];
 
+  const applyFounderImage = () => {
+    const founderImage = document.getElementById('profileImage');
+    if (!founderImage) return;
+    founderImage.src = '/assets/founder/founder-universe-final.png?v=20260917-final2';
+    founderImage.removeAttribute('srcset');
+    founderImage.loading = 'eager';
+    founderImage.decoding = 'async';
+    founderImage.style.setProperty('content','normal','important');
+    founderImage.style.setProperty('background','transparent','important');
+  };
+  applyFounderImage();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyFounderImage, {once:true});
+
   const grid = document.querySelector('.quick-vote-grid');
   if (grid) {
     grid.setAttribute('aria-label', 'Choose from all eight HubCore experiences or the new Reel Vibes release');
