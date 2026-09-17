@@ -23,5 +23,20 @@ main>section:nth-of-type(4n):not(#founder){background-image:radial-gradient(circ
 #founder .portrait-only img,#founder #profileImage{content:normal!important;display:block!important;width:100%!important;max-width:500px!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:drop-shadow(0 22px 38px rgba(20,4,48,.34))!important;opacity:1!important;mix-blend-mode:normal!important}
 #founder .founder-details{position:relative!important;z-index:2!important;background:transparent!important}
 
-@media(max-width:980px){#founder.founder-launch{grid-template-columns:1fr!important;gap:20px!important}#founder .profile-card.portrait-only,#founder .portrait-only{width:min(470px,92vw)!important;max-width:470px!important;margin-inline:auto!important}#founder .portrait-only img,#founder #profileImage{max-width:470px!important;margin-inline:auto!important}#founder .founder-details{width:100%!important}}
-@media(max-width:640px){#founder.founder-launch{gap:8px!important;padding-top:34px!important}#founder .profile-card.portrait-only,#founder .portrait-only{width:min(430px,100%)!important;max-width:100%!important}#founder .portrait-only img,#founder #profileImage{width:100%!important;max-width:430px!important;margin-inline:auto!important}#founder .founder-details{padding-top:0!important}}
+@media(max-width:980px){
+  #founder.founder-launch{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;grid-template-columns:none!important;gap:22px!important;width:100%!important}
+  #founder .profile-card.portrait-only,#founder .portrait-only{order:1!important;width:min(470px,92vw)!important;max-width:470px!important;margin:0 auto!important;position:relative!important;inset:auto!important;transform:none!important}
+  #founder .portrait-only img,#founder #profileImage{display:block!important;width:100%!important;max-width:470px!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;position:static!important;inset:auto!important;transform:none!important;margin:0 auto!important}
+  #founder .founder-details{order:2!important;position:static!important;inset:auto!important;transform:none!important;float:none!important;clear:both!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;align-self:stretch!important;text-align:left!important}
+}
+@media(max-width:640px){
+  #founder.founder-launch{display:flex!important;flex-direction:column!important;gap:18px!important;padding:28px 20px 34px!important;overflow:visible!important}
+  #founder .profile-card.portrait-only,#founder .portrait-only{width:100%!important;max-width:430px!important;margin:0 auto!important;overflow:hidden!important;border-radius:24px!important}
+  #founder .portrait-only img,#founder #profileImage{width:100%!important;max-width:430px!important;height:auto!important;min-height:0!important;max-height:none!important;object-fit:contain!important;border-radius:24px!important;filter:drop-shadow(0 16px 30px rgba(20,4,48,.28))!important}
+  #founder .founder-details{position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;transform:none!important;z-index:auto!important}
+  #founder .founder-details .eyebrow{font-size:.72rem!important;line-height:1.45!important;letter-spacing:.14em!important;white-space:normal!important;margin-bottom:12px!important}
+  #founder .founder-details h2{font-size:clamp(2.15rem,10vw,3rem)!important;line-height:1.02!important;margin:0 0 14px!important;overflow-wrap:anywhere!important}
+  #founder .founder-credit,#founder .founder-location{margin-left:0!important;margin-right:0!important}
+  #founder .founder-tags{display:flex!important;flex-wrap:wrap!important;gap:9px!important;margin-top:16px!important}
+  #founder .founder-tags span{margin:0!important}
+}
