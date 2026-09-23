@@ -63,6 +63,6 @@
   }
 
   function simplifyTrailer(){document.getElementById('trailerCard')?.remove();document.querySelector('#reality .trailer-vignette')?.remove();const play=document.getElementById('trailerPlay');if(play)play.textContent='Play preview';}
-  function init(){bindAnalytics();refineFounderStory();bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
+  function init(){refineFounderStory();bindInvestorForm();installGeneralInquiry();installRealityFollow();simplifyTrailer();updateReach();setInterval(updateReach,5000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
