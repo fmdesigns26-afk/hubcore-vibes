@@ -9,3 +9,7 @@ CONTACT_FROM_EMAIL = "notifications@hubcorevibes.com"
 binding = "DB"
 database_name = "hubcore-vibes-db"
 database_id = "92e0fb3c-a1d5-493f-b616-af60f8b7585a"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "hubcore-vibes-media"
