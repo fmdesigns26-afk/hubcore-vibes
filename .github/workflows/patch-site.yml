@@ -63,11 +63,14 @@ jobs:
           test -f functions/api/account.js
           test -f functions/api/reels.js
           test -f functions/api/upload.js
+          test -f 'functions/api/media/[[path]].js'
           test -f functions/api/reality-comments.js
           test -f functions/api/vibepromote.js
           test -f functions/api/promote-waitlist.js
           grep -q 'https://hubcorevibes.com/sitemap.xml' robots.txt
           grep -q 'https://hubcorevibes.com/reality-switch/' sitemap.xml
+          grep -q 'binding = "MEDIA"' wrangler.toml
+          grep -q 'bucket_name = "hubcore-vibes-media"' wrangler.toml
 
       - name: Validate browser JavaScript syntax
         run: |
