@@ -90,6 +90,7 @@ jobs:
           node --check trailer-actions.js
           node --check platform-health.js
           node --check analytics-live.js
+          node --check analytics-live-v2.js
           node --check site-polish.js
           node --check reality-live.js
 
@@ -101,6 +102,9 @@ jobs:
           done
           cp functions/_lib/hubcore-email.js /tmp/check.mjs
           node --check /tmp/check.mjs
+
+      - name: Verify monthly analytics at SAST midnight
+        run: python3 tests/monthly-analytics.py
 
       - name: Site validation complete
         run: echo "HubCore Vibes production files passed validation."

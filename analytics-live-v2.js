@@ -67,6 +67,37 @@
     if (label) label.textContent = liked ? 'Liked' : 'Like trailer';
   }
 
+
+  function paintMonthlyVisits(data) {
+    const container = document.getElementById('siteVisitMonths');
+    if (!container) return;
+    if (!Array.isArray(data.months)) throw new Error('Monthly visits unavailable');
+    for (const month of data.months) {
+      if (!/^\d{4}-\d{2}$/.test(month.month)) continue;
+      let card = container.querySelector('[data-visit-month="' + month.month + '"]');
+      if (!card) {
+        card = document.createElement('article');
+        card.className = 'visit-month glass-panel';
+        card.dataset.visitMonth = month.month;
+        card.innerHTML = '<div class="visit-month-heading"><h3></h3><span data-month-status></span></div><div class="visit-month-stats"><div><strong data-month-stat="pageViews"></strong><span>Page views</span></div><div><strong data-month-stat="uniqueVisitors"></strong><span>Unique visitors</span></div></div><p data-month-note></p>';
+        container.appendChild(card);
+      }
+      const start = new Date(month.startsAt);
+      const title = start.toLocaleDateString('en-ZA', {timeZone:'Africa/Johannesburg', month:'long', year:'numeric'});
+      card.querySelector('h3').textContent = title;
+      for (const stat of ['pageViews', 'uniqueVisitors']) {
+        card.querySelector('[data-month-stat="' + stat + '"]').textContent = Number(month[stat] || 0).toLocaleString();
+      }
+      card.querySelector('[data-month-status]').textContent = month.status === 'upcoming' ? 'Starts soon' : month.status === 'complete' ? 'Month complete' : 'Live';
+      const startLabel = start.toLocaleDateString('en-ZA', {timeZone:'Africa/Johannesburg', day:'numeric', month:'long'});
+      card.querySelector('[data-month-note]').textContent = month.status === 'upcoming'
+        ? 'Starts ' + startLabel + ' at 00:00 SAST.'
+        : month.status === 'complete' ? 'Final monthly totals · SAST.' : 'Counting visits this month · SAST.';
+    }
+    const status = document.querySelector('[data-monthly-tracking-status]');
+    if (status) status.textContent = 'Live counts refresh every 30 seconds.';
+  }
+
   async function refreshPublicTotals() {
     try {
       const response = await fetch(`${endpoint}?public=1&_=${Date.now()}`, {cache: 'no-store'});
@@ -84,12 +115,15 @@
       document.querySelectorAll('[data-trailer-shares]').forEach(el => {
         el.textContent = Number(data.engagement?.trailerShares || 0).toLocaleString();
       });
+      paintMonthlyVisits(data);
       const since = document.querySelector('[data-site-tracking-since]');
       if (since && data.trackingSince) {
         since.textContent = `Live HubCore tracking since ${new Date(data.trackingSince).toLocaleDateString()}.`;
       }
     } catch (error) {
       console.warn('HubCore public totals unavailable:', error);
+      const status = document.querySelector('[data-monthly-tracking-status]');
+      if (status) status.textContent = 'Live counts are reconnecting. Displayed totals may be out of date.';
     }
   }
 

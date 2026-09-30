@@ -28,14 +28,41 @@ export async function onRequestPost({request,env}){
     return json({ok:true},201);
   }catch{return json({error:'Unable to record analytics.'},500);}
 }
+
+const SITE_MONTH_START = '2026-09';
+const SAST_OFFSET = 2 * 60 * 60 * 1000;
+function siteMonths(rows, now) {
+  const current = new Date(now + SAST_OFFSET).toISOString().slice(0, 7);
+  const last = current > '2026-10' ? current : '2026-10';
+  const counts = new Map(rows.map(row => [row.month, row]));
+  const months = [];
+  for (let year = 2026, month = 9; ; ) {
+    const key = year + '-' + String(month).padStart(2, '0');
+    if (key > last) break;
+    const start = Date.UTC(year, month - 1, 1) - SAST_OFFSET;
+    const end = Date.UTC(year, month, 1) - SAST_OFFSET;
+    const row = counts.get(key);
+    months.push({
+      month: key,
+      pageViews: now < start ? 0 : Number(row?.page_views || 0),
+      uniqueVisitors: now < start ? 0 : Number(row?.unique_visitors || 0),
+      startsAt: start, endsAt: end,
+      status: now < start ? 'upcoming' : now >= end ? 'complete' : 'live'
+    });
+    if (++month > 12) { month = 1; year++; }
+  }
+  return months;
+}
+
 export async function onRequestGet({request,env}){
   if(!env?.DB)return json({error:'Analytics database is not connected.'},503);
   const url=new URL(request.url),isPublic=url.searchParams.get('public')==='1';
   try{
     await ensure(env.DB);
     if(isPublic){
-      const [summary,engagement]=await Promise.all([env.DB.prepare(`SELECT COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors,MIN(timestamp) AS tracking_since FROM analytics_events WHERE event_name='page_view'`).first(),env.DB.prepare(`SELECT COUNT(DISTINCT CASE WHEN event_name='trailer_like' THEN visitor_id END) AS trailer_likes,SUM(CASE WHEN event_name='trailer_share' THEN 1 ELSE 0 END) AS trailer_shares FROM analytics_events WHERE event_name IN ('trailer_like','trailer_share')`).first()]);
-      return json({ok:true,summary:{uniqueVisitors:Number(summary?.unique_visitors||0),pageViews:Number(summary?.page_views||0)},engagement:{trailerLikes:Number(engagement?.trailer_likes||0),trailerShares:Number(engagement?.trailer_shares||0)},trackingSince:Number(summary?.tracking_since||Date.now()),updatedAt:Date.now()});
+      const now = Date.now();
+      const [summary,engagement,monthly]=await Promise.all([env.DB.prepare(`SELECT COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors,MIN(timestamp) AS tracking_since FROM analytics_events WHERE event_name='page_view'`).first(),env.DB.prepare(`SELECT COUNT(DISTINCT CASE WHEN event_name='trailer_like' THEN visitor_id END) AS trailer_likes,SUM(CASE WHEN event_name='trailer_share' THEN 1 ELSE 0 END) AS trailer_shares FROM analytics_events WHERE event_name IN ('trailer_like','trailer_share')`).first(),env.DB.prepare(`SELECT strftime('%Y-%m', timestamp / 1000, 'unixepoch', '+2 hours') AS month,COUNT(*) AS page_views,COUNT(DISTINCT visitor_id) AS unique_visitors FROM analytics_events WHERE event_name='page_view' AND timestamp>=? AND timestamp<=? GROUP BY month ORDER BY month`).bind(Date.parse(SITE_MONTH_START + '-01T00:00:00+02:00'),now).all()]);
+      return json({ok:true,months:siteMonths(monthly.results||[],now),timezone:'Africa/Johannesburg',summary:{uniqueVisitors:Number(summary?.unique_visitors||0),pageViews:Number(summary?.page_views||0)},engagement:{trailerLikes:Number(engagement?.trailer_likes||0),trailerShares:Number(engagement?.trailer_shares||0)},trackingSince:Number(summary?.tracking_since||Date.now()),updatedAt:Date.now()});
     }
     const token=founderTokenFromRequest(request);if(!await verifyFounderToken(token,env))return json({error:'Founder access required.'},401);
     const days=daysFromUrl(request),since=Date.now()-days*86400000;
